@@ -56,12 +56,10 @@ console.log('Number of deals:', numberOfDeals);
 // 2. Log the variable
 // 3. Log how many shopping communities we have
 
-const shoppingCommunityNames = MY_FAVORITE_DEALS.map(deals => deals.name);
+const shoppingCommunityNames = deals.map(deals => deals.community);
 
-// Affichage des noms de communautés
 console.log('Shopping community names:', shoppingCommunityNames);
 
-// Affichage nb communauté
 console.log('Number of shopping communities:', shoppingCommunityNames.length);
 
 // 🎯 TODO 4: Sort by price
@@ -69,10 +67,34 @@ console.log('Number of shopping communities:', shoppingCommunityNames.length);
 // 2. Create a variable and assign it the list of sets by price from lowest to highest
 // 3. Log the variable
 
+function sortDealsByCurrentPrice(deals) 
+{
+  return deals.sort((a, b) => a.price.current - b.price.current);
+}
+
+// Variable contenant la liste triée
+const sortedDealsByPrice = sortDealsByCurrentPrice(deals);
+
+// Affichage
+console.log('Deals sorted by current price (lowest to highest):', sortedDealsByPrice);
+
 // 🎯 TODO 5: Sort by date
 // 1. Create a function to sort the deals by date
 // 2. Create a variable and assign it the list of deals by date from recent to old
 // 3. Log the variable
+
+function sortDealsByPublished(deals) 
+{
+  return deals.sort((a, b) => new Date(b.published) - new Date(a.published));
+}
+
+// 2. Variable contenant la liste triée
+const sortedDealsByPublished = sortDealsByPublished(deals);
+
+// 3. Afficher la liste triée
+console.log('Deals sorted by published date (recent to old):', sortedDealsByPublished);
+
+
 
 // 🎯 TODO 6: Filter a specific percentage discount range
 // 1. Filter the list of deals between 50% and 75%
