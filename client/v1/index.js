@@ -48,10 +48,21 @@ console.log('The URL of the LEGO set with the highest reduction is:', HIGHEST_RE
 // 1. Create a variable and assign it the number of deals
 // 2. Log the variable
 
+const numberOfDeals = deals.length;
+console.log('Number of deals:', numberOfDeals);
+
 // 🎯 TODO 3: Website name
 // 1. Create a variable and assign it the list of shopping community name only
 // 2. Log the variable
 // 3. Log how many shopping communities we have
+
+const shoppingCommunityNames = MY_FAVORITE_DEALS.map(deals => deals.name);
+
+// Affichage des noms de communautés
+console.log('Shopping community names:', shoppingCommunityNames);
+
+// Affichage nb communauté
+console.log('Number of shopping communities:', shoppingCommunityNames.length);
 
 // 🎯 TODO 4: Sort by price
 // 1. Create a function to sort the deals by price
