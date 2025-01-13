@@ -88,10 +88,10 @@ function sortDealsByPublished(deals)
   return deals.sort((a, b) => new Date(b.published) - new Date(a.published));
 }
 
-// 2. Variable contenant la liste triée
+// Variable contenant la liste triée
 const sortedDealsByPublished = sortDealsByPublished(deals);
 
-// 3. Afficher la liste triée
+// Affichage
 console.log('Deals sorted by published date (recent to old):', sortedDealsByPublished);
 
 
@@ -99,6 +99,18 @@ console.log('Deals sorted by published date (recent to old):', sortedDealsByPubl
 // 🎯 TODO 6: Filter a specific percentage discount range
 // 1. Filter the list of deals between 50% and 75%
 // 2. Log the list
+
+function filterDealsByDiscount(deals, minDiscount, maxDiscount) 
+{
+  return deals.filter(deals => deals.discount >= minDiscount && deals.discount <= maxDiscount);
+}
+
+// Variable contenant la liste filtrée
+const filteredDeals = filterDealsByDiscount(deals, 50, 75);
+
+// Affichage
+console.log('Filtered deals between 50% and 75% discount:', filteredDeals);
+
 
 // 🎯 TODO 7: Average percentage discount
 // 1. Determine the average percentage discount of the deals
@@ -110,6 +122,18 @@ console.log('Deals sorted by published date (recent to old):', sortedDealsByPubl
  * Keep pushing
  * 🏎
  */
+
+function calculateAverageDiscount(deals) 
+{
+  const totalDiscount = deals.reduce((sum, deals) => sum + deals.discount, 0);
+  return totalDiscount / deals.length;
+}
+
+// Variable contenant la moyenne des réductions
+const averageDiscount = calculateAverageDiscount(deals);
+
+// Affichage
+console.log('Average discount:', averageDiscount.toFixed(2), '%');
 
 // 🎯 TODO 8: Deals by community
 // 1. Create an object called `communities` to manipulate deals by community name 
@@ -126,6 +150,28 @@ console.log('Deals sorted by published date (recent to old):', sortedDealsByPubl
 //
 // 2. Log the variable
 // 3. Log the number of deals by community
+
+// Regrouper les offres par communauté
+const communities = deals.reduce((acc, deals) => 
+  {
+  // Si la communauté n'existe pas dans l'accumulateur, on l'initialise avec un tableau vide
+  if (!acc[deals.community]) {
+    acc[deals.community] = [];
+  }
+  // On ajoute l'offre à la communauté correspondante
+  acc[deals.community].push(deals);
+  return acc;
+}, {});
+
+// 2. Afficher l'objet 'communities'
+console.log('Deals by community:', communities);
+
+// 3. Affichage du nombre d'offres par communauté
+for (const community in communities) 
+{
+  console.log(`Number of deals in ${community}:`, communities[community].length);
+}
+
 
 // 🎯 TODO 9: Sort by price for each community
 // 1. For each community, sort the deals by discount price, from highest to lowest
@@ -439,7 +485,7 @@ const VINTED = [
 // 1. Delete the item with the uuid `f2c5377c-84f9-571d-8712-98902dcbb913`
 // 2. Log the new list of items
 
-// 🎯 TODO 5: Save a favorite item
+// 🎯 TODO 15: Save a favorite item
 // We declare and assign a variable called `sealedCamera`
 let sealedCamera = {
   link: "https://www.vinted.fr/items/5563396347-lego-43230-omaggio-a-walter-disney-misb",
@@ -470,7 +516,7 @@ sealedCamera = {
 // 3. Update `camera` property with `favorite` to true WITHOUT changing sealedCamera properties
 
 
-// 🎯 TODO 11: Compute the profitability
+// 🎯 TODO 16: Compute the profitability
 // From a specific deal called `deal`
 const deal = {
   'title':  'La caméra Hommage à Walt Disney',
