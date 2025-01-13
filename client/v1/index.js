@@ -177,9 +177,40 @@ for (const community in communities)
 // 1. For each community, sort the deals by discount price, from highest to lowest
 // 2. Log the sort
 
+// Trier les offres de chaque communauté par prix de réduction (du plus élevé au plus bas)
+const sortedCommunities = Object.keys(communities).reduce((acc, community) => {
+  // Trier les offres de la communauté actuelle par discount (de la plus haute à la plus basse)
+  acc[community] = communities[community].sort((a, b) => b.discount - a.discount);
+  return acc;
+}, {});
+
+// 2. Afficher les offres triées par communauté
+console.log('Sorted deals by discount for each community:', sortedCommunities);
+
+// 3. Afficher les offres triées pour chaque communauté
+for (const community in sortedCommunities) {
+  console.log(`Deals in ${community} sorted by discount:`);
+  console.table(sortedCommunities[community]);
+}
+
 // 🎯 TODO 10: Sort by date for each community
 // 1. For each set, sort the deals by date, from old to recent
 // 2. Log the sort
+
+const sortedByDateCommunities = Object.keys(communities).reduce((acc, community) => {
+  // Trier les offres de la communauté actuelle par la date de publication
+  acc[community] = communities[community].sort((a, b) => new Date(a.published) - new Date(b.published));
+  return acc;
+}, {});
+
+// Afficher les offres triées par date pour chaque communauté
+console.log('Sorted deals by date for each community:', sortedByDateCommunities);
+
+// Afficher les offres triées pour chaque communauté
+for (const community in sortedByDateCommunities) {
+  console.log(`Deals in ${community} sorted by date (old to recent):`);
+  console.table(sortedByDateCommunities[community]);
+}
 
 
 /**
