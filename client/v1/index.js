@@ -30,6 +30,11 @@ console.log(MY_FAVORITE_DEALERS[0]);
 // 1. Create a new variable and assign it the link of the lego set with the highest reduction I can find on these 2 websites
 // 2. Log the variable
 
+const HIGHEST_REDUCTION_URL = 'https://www.dealabs.com/bons-plans/jeu-de-construction-lego-embuscade-sur-mandalore-battle-pack-75373-2972582'; // Remplacez par l'URL réelle
+
+console.log('The URL of the LEGO set with the highest reduction is:', HIGHEST_REDUCTION_URL);
+
+
 /**
  * 🧱
  * Easy 😁?
