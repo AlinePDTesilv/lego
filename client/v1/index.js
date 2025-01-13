@@ -504,20 +504,70 @@ const VINTED = [
 // 3. Compute the p25 price value of the listing
 // The p25 value (25th percentile) is the lower value expected to be exceeded in 25% of the vinted items
 
+// Extraire les prix de la liste VINTED
+const prices = VINTED.map(item => parseFloat(item.price));
+
+// Trier les prix par ordre croissant
+prices.sort((a, b) => a - b);
+
+// Calcul de la moyenne
+const averagePrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+
+// Calcul du p5 (5ème percentile)
+const p5Index = Math.floor(prices.length * 0.05);
+const p5Price = prices[p5Index];
+
+// Calcul du p25 (25ème percentile)
+const p25Index = Math.floor(prices.length * 0.25);
+const p25Price = prices[p25Index];
+
+// Log des résultats
+console.log(' Average Price: €', averagePrice.toFixed(2));
+console.log(' 5th Percentile (p5): €', p5Price.toFixed(2));
+console.log(' 25th Percentile (p25): €', p25Price.toFixed(2));
+
+
 // 🎯 TODO 12: Very old listed items
 // // 1. Log if we have very old items (true or false)
 // // A very old item is an item `published` more than 3 weeks ago.
+
+// Vérification des articles très anciens (plus de 3 semaines)
+const isVeryOldItems = VINTED.some(item => {
+  const publishedDate = new Date(item.published);
+  const currentDate = new Date();
+  const differenceInTime = currentDate - publishedDate;
+  const differenceInDays = differenceInTime / (1000 * 3600 * 24); // Convertir en jours
+
+  return differenceInDays > 21; // Plus de 21 jours = "très ancien"
+});
+
+// Log de la vérification
+console.log('Has very old items:', isVeryOldItems);
 
 // 🎯 TODO 13: Find a specific item
 // 1. Find the item with the uuid `f2c5377c-84f9-571d-8712-98902dcbb913`
 // 2. Log the item
 
+//Trouver l'article avec l'uuid spécifique
+const specificItem = VINTED.find(item => item.uuid === "f2c5377c-84f9-571d-8712-98902dcbb913");
+
+// Log de l'article trouvé
+console.log('Specific item found for this uuid:', specificItem);
+
+
 // 🎯 TODO 14: Delete a specific item
 // 1. Delete the item with the uuid `f2c5377c-84f9-571d-8712-98902dcbb913`
 // 2. Log the new list of items
 
+// Supprimer l'élément avec l'uuid spécifique
+const filteredVinted = VINTED.filter(item => item.uuid !== "f2c5377c-84f9-571d-8712-98902dcbb913");
+
+// Log de la nouvelle liste sans l'élément supprimé
+console.log('Updated VINTED list:', filteredVinted);
+
 // 🎯 TODO 15: Save a favorite item
 // We declare and assign a variable called `sealedCamera`
+
 let sealedCamera = {
   link: "https://www.vinted.fr/items/5563396347-lego-43230-omaggio-a-walter-disney-misb",
   price: "131.95",
