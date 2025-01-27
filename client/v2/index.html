@@ -3,83 +3,139 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>🧱 Lego | Predictability of a lego set deal</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <h1>Lego</h1>
-    <section id="options">
-      <div id="show">
-        <label for="show-select">Show:</label>
-        <select name="show" id="show-select">
-          <option value="6">6</option>
-          <option value="12">12</option>
-          <option value="24">24</option>
-        </select>
+    <div class="container">
+      <!-- Left Sidebar -->
+      <div class="sidebar">
+        <section>
+          <h2>Show & Page</h2>
+          <div>
+            <label for="show-select">Show:</label>
+            <select name="show" id="show-select">
+              <option value="6">6</option>
+              <option value="12">12</option>
+              <option value="24">24</option>
+            </select>
+          </div>
+          <div>
+            <label for="page-select">Page:</label>
+            <select name="page" id="page-select"> </select>
+          </div>
+        </section>
+
+        <!-- Section Filter -->
+        <section>
+          <h2>Filter</h2>
+          <div>
+            <div class="filter-title">
+              <span>Discount:</span>
+              <span id="discount-value">0%</span>
+            </div>
+            <input type="range" id="discount-slider" min="0" max="100" step="10" value="0">
+          </div>
+          <div>
+            <div class="filter-title">
+              <span>Comments:</span>
+              <span id="comment-value">0</span>
+            </div>
+            <input type="range" id="comment-range" min="0" max="100" step="5" value="0">
+          </div>
+          <div>
+            <div class="filter-title">
+              <span>Temperature:</span>
+              <span id="hot-deals-value">0</span>
+            </div>
+            <input type="range" id="hot-deals-range" min="0" max="200" step="10" value="0">
+          </div>
+        </section>
+
+        <!-- Section Sort -->
+        <section>
+          <h2>Sort</h2>
+          <label for="sort-select">Sort:</label>
+          <select name="sort" id="sort-select">
+            <option value="price-asc">By Price (Cheaper)</option>
+            <option value="price-desc">By Price (Expensive)</option>
+            <option value="date-asc">By Date (Recently published)</option>
+            <option value="date-desc">By Date (Anciently published)</option>
+            <option value="vinted_d">Vinted Deals</option>
+            <option value="dealabs_d">Dealabs Deals</option>
+          </select>
+        </section>
+
+        <!-- Section Indicators -->
+        <section class="indicators">
+          <h2>Indicators</h2>
+          <div>
+            <span>Number of deals:</span>
+            <span id="nbDeals">10</span>
+          </div>
+          <div>
+            <span>Number of sales:</span>
+            <span id="nbSales">35</span>
+          </div>
+          <div>
+            <span>p5 sales price value:</span>
+            <span id="nb_p5">150€</span>
+          </div>
+          <div>
+            <span>p25 sales price value:</span>
+            <span id="nb_p25">200€</span>
+          </div>
+          <div>
+            <span>p50 sales price value:</span>
+            <span id="nb_p50">300€</span>
+          </div>
+          <div>
+            <span>Lifetime value:</span>
+            <span id="lifetime_val">5000€</span>
+          </div>
+        </section>
       </div>
-      <div id="page">
-        <label for="page-select">Go to page:</label>
-        <select name="page" id="page-select"> </select>
+
+      <!-- Right Column (Deals) -->
+      <div class="deals-container">
+        <h2>Lego Sets</h2>
+        <div>
+          <label>Lego Set ID:</label>
+          <select id="lego-set-id-select"></select>
+        </div>
+
+        <!-- Deals List (Example) -->
+        <section id="deals">
+          <div class="deal-card">
+            <!-- Photo du deal -->
+            <img src="PHOTO_URL" alt="Deal Image" class="deal-photo">
+          
+            <!-- Header du deal, avec le titre et les informations principales -->
+            <div class="deal-header">
+              <!-- Titre du deal -->
+              <h3>DEAL_TITLE</h3>
+          
+              <!-- Informations du deal -->
+              <div class="deal-info">
+                <span><strong>Retail:</strong> RETAIL_PRICE</span>
+                <span><strong>Price:</strong> DEAL_PRICE</span>
+                <span><strong>Discount:</strong> DISCOUNT%</span>
+                <span><strong>Temperature:</strong> TEMPERATURE</span>
+                <span><strong>Comments:</strong> NUMBER_OF_COMMENTS</span>
+              </div>
+          
+              <!-- Footer avec la date et le bouton "See the deal" -->
+              <div class="deal-footer">
+                <span class="date">Published: PUBLICATION_DATE</span>
+                <a href="DEAL_LINK" class="see-deal-button" target="_blank">See the deal</a>
+              </div>
+            </div>
+          </div>
+          <!-- Add more deal cards here -->
+        </section>
       </div>
-      <div id="comment-filter">
-        <label for="discount-slider">Discount: <span id="discount-value">50%</span></label>
-        <input type="range" id="discount-slider" min="0" max="100" step="10" value="50">
-      </div>
-      <div id="Most-commented-filter">
-        <label for="comment-range">Minimum Comments:</label>
-        <input type="range" id="comment-range" min="0" max="100" step="5" value="15">
-        <span id="comment-value">15</span>
-      </div>
-      <div id="hot-deals-filter">
-        <label for="hot-deals-range">Minimum Temperature:</label>
-        <input type="range" id="hot-deals-range" min="0" max="200" step="10" value="40">
-        <span id="hot-deals-value">40</span>
-      </div>
-      <div id="sort">
-        <label for="sort-select">Sort:</label>
-        <select name="sort" id="sort-select">
-          <option value="price-asc">Cheaper</option>
-          <option value="price-desc">Expensive</option>
-          <option value="date-asc">Recently published</option>
-          <option value="date-desc">Anciently published</option>
-          <option value="vinted_d">Vinted deals</option>
-          <option value="dealabs_d">Dealabs deals</option>
-        </select>
-      </div>
-    </section>
-    <section id="lego">
-      <h2>Lego sets</h2>
-      <div>
-        <label>Lego set id:</label>
-        <select id="lego-set-id-select"></select> 
-      </div>
-    </section>
-    <section id="indicators">
-      <h2>Indicators</h2>
-      <div>
-        <span>Number of deals:</span>
-        <span id="nbDeals">0</span>
-      </div>
-      <div>
-        <span>Number of sales:</span>
-        <span id="nbSales">0</span>
-      </div>
-      <div>
-        <span>p5 sales price value:</span>
-        <span id="nb_p5">0</span>
-      </div>
-      <div>
-        <span>p25 sales price value:</span>
-        <span id="nb_p25">0</span>
-      </div>
-      <div>
-        <span>p50 sales price value:</span>
-        <span id="nb_p50">0</span>
-      </div>
-      <div>
-        <span>Lifetime value:</span>
-        <span id="lifetime_val">0</span>
-      </div>
-    </section>
-    <section id="deals"></section>
+    </div>
+
     <script type="text/javascript" charset="UTF-8" src="utils.js"></script>
     <script type="text/javascript" charset="UTF-8" src="portfolio.js"></script>
   </body>

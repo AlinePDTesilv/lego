@@ -71,21 +71,43 @@ const fetchDeals = async (page = 1, size = 6) =>
 };
 
 /**
- * Render list of deals
+ * Render list of deals (visual of cards)
  * @param  {Array} deals
  */
-const renderDeals = deals => {
+const renderDeals = (deals) => {
   const fragment = document.createDocumentFragment();
   const div = document.createElement('div');
+  
   const template = deals
-    .map(deal => {
+    .map((deal) => {
+      const datePublished = new Date(deal.published * 1000).toLocaleDateString(); // Convertir la date UNIX en format lisible
+      const discountPercentage = deal.discount; // Utiliser le discount
+      const price = deal.price;
+      const retailPrice = deal.retail;
+      const photo = deal.photo;
+      const commentsCount = deal.comments;
+      const temperature = deal.temperature;
+      const title = deal.title;
+      const dealLink = deal.link;
+
       return `
-      <div class="deal" id=${deal.uuid}>
-        <span>${deal.id}</span>
-        <a href="${deal.link}" target="_blank">${deal.title}</a>  
-        <span>${deal.price}</span>
+      <div class="deal-card" id="deal-${deal.uuid}">
+        <div class="deal-header">
+          <img src="${photo}" alt="${title}" class="deal-photo">
+          <h3>${title}</h3>
+          <span class="deal-date">Published: ${datePublished}</span>
+        </div>
+        <div class="deal-body">
+          <p><strong>Price:</strong> €${price} <span class="original-price">€${retailPrice}</span></p>
+          <p><strong>Discount:</strong> ${discountPercentage}%</p>
+          <p><strong>Temperature:</strong> ${temperature}°C</p>
+          <p><strong>Comments:</strong> ${commentsCount}</p>
+        </div>
+        <div class="deal-footer">
+          <a href="${dealLink}" target="_blank" class="see-deal-button">See the deal</a>
+        </div>
       </div>
-    `;
+      `;
     })
     .join('');
 
@@ -94,6 +116,7 @@ const renderDeals = deals => {
   sectionDeals.innerHTML = '<h2>Deals</h2>';
   sectionDeals.appendChild(fragment);
 };
+
 
 /**
  * Render page selector
@@ -469,4 +492,7 @@ function updateAverageLifetime(lifetimeValue)
   // Mettre à jour l'élément HTML avec la valeur du Lifetime Value
   document.getElementById('lifetime_val').textContent = `${lifetimeValue} days`;
 }
+
+
+
 
