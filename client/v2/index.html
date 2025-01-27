@@ -19,10 +19,19 @@
         <label for="page-select">Go to page:</label>
         <select name="page" id="page-select"> </select>
       </div>
-      <div id="filters">
-        <button id="best-discount-button">By best discount</button>
-        <button id="most-commented-button">By most commented</button>
-        <button id="hot-deals-button">By hot deals</button>
+      <div id="comment-filter">
+        <label for="discount-slider">Discount: <span id="discount-value">50%</span></label>
+        <input type="range" id="discount-slider" min="0" max="100" step="10" value="50">
+      </div>
+      <div id="Most-commented-filter">
+        <label for="comment-range">Minimum Comments:</label>
+        <input type="range" id="comment-range" min="0" max="100" step="5" value="15">
+        <span id="comment-value">15</span>
+      </div>
+      <div id="hot-deals-filter">
+        <label for="hot-deals-range">Minimum Temperature:</label>
+        <input type="range" id="hot-deals-range" min="0" max="200" step="10" value="40">
+        <span id="hot-deals-value">40</span>
       </div>
       <div id="sort">
         <label for="sort-select">Sort:</label>
@@ -31,6 +40,8 @@
           <option value="price-desc">Expensive</option>
           <option value="date-asc">Recently published</option>
           <option value="date-desc">Anciently published</option>
+          <option value="vinted_d">Vinted deals</option>
+          <option value="dealabs_d">Dealabs deals</option>
         </select>
       </div>
     </section>

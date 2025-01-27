@@ -82,7 +82,7 @@ const renderDeals = deals => {
       return `
       <div class="deal" id=${deal.uuid}>
         <span>${deal.id}</span>
-        <a href="${deal.link}">${deal.title}</a>
+        <a href="${deal.link}" target="_blank">${deal.title}</a>  
         <span>${deal.price}</span>
       </div>
     `;
@@ -205,80 +205,131 @@ sortSelect.addEventListener('change', async (event) => {
 });
 
 
-// Lifetime Value (average)
-const loadAndCalculateLifetime = async () => {
-  const deals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value)); // Charger les deals
-  const lifetimeValue = calculateLifetimeValue(deals.result); // Calculer la Lifetime Value
-  updateAverageLifetime(lifetimeValue); // Mettre à jour l'affichage
-};
 
-// Appeler cette fonction au chargement de la page
-loadAndCalculateLifetime();
 
 
 // Filter functions: 
-const filterByBestDiscount = (deals) => 
+
+// Function to filter deals by percentage of reduction, with a minimum percentage given
+const filterByDiscount = (deals, minDiscount) => 
 {
-  return deals.filter(deal => {
-    return deal.discount > 50;  // Only show deals with a discount higher than 50%
-  });
+  return deals
+    .filter(deal => deal.discount >= minDiscount) // Filtrer les deals avec une réduction >= minDiscount
+    .sort((a, b) => b.discount - a.discount); // Trier par ordre décroissant de réduction
 };
 
-const filterByMostCommented = (deals) => 
+
+const filterByMostCommented = (deals, minComments) => 
 {
-  return deals.filter(deal => deal.comments > 15);  // no deals with 15 comments and more !
+  return deals.filter(deal => deal.comments >= minComments); // Filtrer les deals avec un nombre de commentaires >= minComments
 };
 
-const filterByHotDeals = (deals) => 
+
+const filterByHotDeals = (deals, minTemperature) => 
 {
-  return deals.filter(deal => deal.temperature > 40.0);  // Assuming 'temperature' is the field for the deal's temperature
+  return deals.filter(deal => deal.temperature >= minTemperature); // Filtrer les deals avec une température >= minTemperature
 };
+
 
 // Add event listeners for the filter buttons
 
-// Listen for the 'By best discount' button click
-document.getElementById('best-discount-button').addEventListener('click', async () => {
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));  // Get current page and size
-  const filteredDeals = filterByBestDiscount(allDeals.result);  // Apply the filter
+// Écouter les changements sur le curseur de réduction
+document.getElementById('discount-slider').addEventListener('input', async (event) => {
+  const selectedDiscount = parseInt(event.target.value); // Obtenez la valeur actuelle du curseur
+  document.getElementById('discount-value').textContent = `${selectedDiscount}%`; // Mettez à jour l'affichage de la valeur
 
-  
-  setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });  // Update the current deals with filtered results
-  render(filteredDeals, allDeals.meta);  // Re-render with filtered deals
+  // Récupérer les deals actuels
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
+
+  // Filtrer les deals en fonction de la réduction sélectionnée
+  const filteredDeals = filterByDiscount(allDeals.result, selectedDiscount);
+
+  // Mettre à jour et afficher les deals filtrés
+  setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
+  render(filteredDeals, allDeals.meta);
 });
 
 // Listen for the 'Most commented' button click
-document.getElementById('most-commented-button').addEventListener('click', async () => {
-  // Fetch the current page and size (same as before)
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));  
+const commentRange = document.getElementById('comment-range');
+const commentValue = document.getElementById('comment-value');
 
-  // Apply the filter: only keep deals with more than 15 comments
-  const filteredDeals = filterByMostCommented(allDeals.result);
+// Mettre à jour la valeur affichée à côté du curseur
+commentRange.addEventListener('input', (event) => {
+  commentValue.textContent = event.target.value; // Met à jour la valeur dynamique
+});
 
-  // Update the current deals with filtered results
+// Appliquer le filtre au changement de valeur
+commentRange.addEventListener('change', async (event) => {
+  const minComments = parseInt(event.target.value); // Récupère la valeur sélectionnée
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value)); // Récupère les deals actuels
+  
+  // Filtrer les deals selon le nombre minimum de commentaires
+  const filteredDeals = filterByMostCommented(allDeals.result, minComments);
+
+  // Mettre à jour les deals actuels et réafficher
   setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
-
-  // Re-render the page with the filtered deals
   render(filteredDeals, allDeals.meta);
 });
+
 
 // Listen for the 'Hot deals' button click
-document.getElementById('hot-deals-button').addEventListener('click', async () => {
-  // Fetch the current page and size (same as before)
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
+const hotDealsRange = document.getElementById('hot-deals-range');
+const hotDealsValue = document.getElementById('hot-deals-value');
 
-  // Apply the filter: only keep deals with a temperature greater than 100
-  const filteredDeals = filterByHotDeals(allDeals.result);
+// Mettre à jour la valeur affichée à côté du curseur
+hotDealsRange.addEventListener('input', (event) => {
+  hotDealsValue.textContent = event.target.value; // Met à jour la valeur dynamique
+});
 
-  // Update the current deals with filtered results
+// Appliquer le filtre au changement de valeur
+hotDealsRange.addEventListener('change', async (event) => {
+  const minTemperature = parseInt(event.target.value); // Récupère la valeur sélectionnée
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value)); // Récupère les deals actuels
+  
+  // Filtrer les deals selon la température minimum
+  const filteredDeals = filterByHotDeals(allDeals.result, minTemperature);
+
+  // Mettre à jour les deals actuels et réafficher
   setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
-
-  // Re-render the page with the filtered deals
   render(filteredDeals, allDeals.meta);
 });
 
 
+
+//FEATURE 7 - Display Vinted or Dealabs sales
+
+const legoSortSelect = document.getElementById('sort-select');
+
+// Add an event listener to the dropdown for change events
+legoSortSelect.addEventListener('change', async (event) => {
+  const selectedSort = event.target.value;  // Get the selected value (sorting option)
+  let sortedDeals = [];
+
+  // Get current deals based on pagination
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
+
+  // Filter deals based on the selected community
+  if (selectedSort === 'vinted_d') 
+  {
+    sortedDeals = allDeals.result.filter(deal => deal.community === 'vinted');
+  } 
+  else if (selectedSort === 'dealabs_d') 
+  {
+    sortedDeals = allDeals.result.filter(deal => deal.community === 'dealabs');
+  } 
+
+  // Check if any deals were found
+  if (sortedDeals.length > 0) {
+    // Update the current deals state and render them
+    setCurrentDeals({ result: sortedDeals, meta: allDeals.meta });
+    render(sortedDeals, allDeals.meta);  // Call the render function to display the filtered deals
+  } else {
+    console.log("No deals found for the selected filter.");
+  }
+});
 // Function to filter deals based on the selected type
-const filterDeals = (filterType) => {
+const filterDeals = (filterType) => 
+{
   // Example of how the filtering can be handled (you can adjust based on your needs)
   console.log(`Filtering by: ${filterType}`);
   
@@ -338,9 +389,8 @@ function calculatePriceIndicators(deals) {
   const p25 = prices[Math.floor(prices.length * 0.25)] || 0;
   const p50 = prices[Math.floor(prices.length * 0.5)] || 0;
   const nbDeals = deals.length;
-  const nbSales = deals.filter(deal => deal.price > 0).length;
 
-  return { p5, p25, p50, nbDeals, nbSales };
+  return { p5, p25, p50, nbDeals };
 }
 
 // Fonction pour mettre à jour l'affichage des indicateurs
@@ -350,7 +400,6 @@ function updatePriceIndicators(indicators) {
 
   // Mettre à jour les éléments HTML correspondants
   document.getElementById('nbDeals').textContent = indicators.nbDeals;
-  document.getElementById('nbSales').textContent = indicators.nbSales;
   document.getElementById('nb_p5').textContent = indicators.p5;
   document.getElementById('nb_p25').textContent = indicators.p25;
   document.getElementById('nb_p50').textContent = indicators.p50;
@@ -377,32 +426,47 @@ async function fetchAndDisplayPriceIndicators(page = 1, size = 6) {
 fetchAndDisplayPriceIndicators(currentPagination.currentPage, parseInt(selectShow.value));
 
 
-// FEATURE 10: Lifetime value
 
-function calculateLifetimeValue(deals) 
+// FEATURE 10: Update Lifetime Value for a single selected deal by ID
+
+// Sélectionner le menu déroulant pour le Lego Set ID
+
+legoSetSelect.addEventListener('change', async (event) => {
+  const selectedId = event.target.value.toString(); // Convertir en chaîne
+
+  if (!selectedId) {
+    return;
+  }
+
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value, 10));
+
+  // Filtrer les deals avec l'ID en tant que chaîne
+  const sortedDeals = allDeals.result.filter(deal => deal.id === selectedId);
+
+  if (sortedDeals.length > 0) {
+    const deal = sortedDeals[0]; // Un seul deal attendu pour un ID unique
+    const lifetimeValue = calculateLifetimeValue(deal); // Calculer le Lifetime Value
+    updateAverageLifetime(lifetimeValue); // Mettre à jour l'affichage
+  } else {
+    // Si aucun deal trouvé
+    document.getElementById('lifetime_val').textContent = `No deal found for ID: ${selectedId}`;
+  }
+});
+
+// Fonction pour calculer le Lifetime Value
+function calculateLifetimeValue(deal) 
 {
-  let totalLifetime = 0;
-  let totalDeals = 0;
-
-  deals.forEach(deal => {
-    const publishedTimestamp = deal.published;
-
-    const publishedDate = new Date(publishedTimestamp * 1000);
-    const currentDate = new Date();
-
-    const lifetimeInMillis = currentDate - publishedDate;
-    const lifetimeInDays = Math.floor(lifetimeInMillis / (1000 * 60 * 60 * 24));
-
-    totalLifetime += lifetimeInDays;
-    totalDeals += 1;
-  });
-
-  const lifetime_value = totalDeals > 0 ? Math.floor(totalLifetime / totalDeals) : 0;
-  return lifetime_value;
+  const publishedTimestamp = deal.published; // Timestamp Unix en secondes
+  const currentTimestamp = Math.floor(Date.now() / 1000); // Timestamp actuel en secondes
+  const lifetimeInSeconds = currentTimestamp - publishedTimestamp; // Différence en secondes
+  const lifetimeInDays = Math.floor(lifetimeInSeconds / (60 * 60 * 24)); // Conversion en jours
+  return (lifetimeInDays+1);  //always missing a day, don't know why
 }
 
-function updateAverageLifetime(lifetime_value) {
-  const lifetimeElement = document.getElementById('lifetime_val');
-  
-  lifetimeElement.textContent = `${lifetime_value} days`;
+
+function updateAverageLifetime(lifetimeValue) 
+{
+  // Mettre à jour l'élément HTML avec la valeur du Lifetime Value
+  document.getElementById('lifetime_val').textContent = `${lifetimeValue} days`;
 }
+
