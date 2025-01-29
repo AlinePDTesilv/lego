@@ -494,5 +494,5 @@ function updateAverageLifetime(lifetimeValue)
 }
 
 
-
+//FEATURE: Display the vinted sales for a specified id
 
