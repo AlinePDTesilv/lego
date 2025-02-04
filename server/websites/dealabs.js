@@ -4,64 +4,56 @@ const cheerio = require('cheerio');
 /**
  * Parse webpage data response
  * @param  {String} data - html response
- * @return {Object} deal
+ * @return {Object[]} deals - Extracted deals
  */
 const parse = data => {
-  const $ = cheerio.load(data, {'xmlMode': true});
+  const $ = cheerio.load(data, { xmlMode: false });
 
-  return $('article.thread')
+  return $('article.thread') // Sélectionne chaque deal
     .map((i, element) => {
-      const price = parseFloat(
-        $(element)
-          .find('.thread-price')
-          .text()
-          .replace('€', '')
-          .trim()
-      );
+      // Extraction du titre
+      const titleElement = $(element).find('.thread-title a');
+      const title = titleElement.attr('title') ? titleElement.attr('title').trim() : 'Titre non trouvé';
 
-      const originalPrice = parseFloat(
-        $(element)
-          .find('.color--text-NeutralSecondary.text--lineThrough')
-          .text()
-          .replace('€', '')
-          .trim()
-      );
+      // Extraction du prix
+      let priceText = $(element).find('.thread-price').text().trim();
+      let price = priceText ? parseFloat(priceText.replace(/[^\d,\.]/g, '').replace(',', '.')) : null;
 
-      const discount = $(element)
-        .find('.textBadge--green')
-        .text()
-        .replace('%', '')
-        .trim();
+      // Extraction de la réduction
+      let discountText = $(element).find('.thread-price .textBadge--green').text().trim();
+      let discount = discountText ? parseInt(discountText.replace('%', '')) : null;
 
-      const title = $(element)
-        .find('.thread-title a')
-        .attr('title');
+      // Extraction de la température
+      let temperatureText = $(element).find('.cept-vote-temp').text().trim();
+      let temperature = temperatureText || 'Température non trouvée';
 
-      // Récupération de la température
-      const temperature = $(element)
-        .find('.threadListCard-header .cept-vote-temp')
-        .text()
-        .trim();
+      // Extraction du nombre de commentaires
+      let commentsText = $(element).find('.button--mode-secondary').text().trim();
+      let commentsCount = commentsText ? parseInt(commentsText.replace(/\D/g, '')) : 0;
 
-      // Récupération du nombre de commentaires
-      const commentsCount = parseInt(
-        $(element)
-          .find('.button--mode-secondary')
-          .last()
-          .text()
-      );
+      // DEBUG : Afficher les données récupérées pour chaque article
+      console.log(`Article ${i + 1}:`, {
+        title,
+        priceText,
+        price,
+        discountText,
+        discount,
+        temperature,
+        commentsText,
+        commentsCount,
+      });
 
       return {
         title,
         price,
-        originalPrice,
         discount,
         temperature,
         commentsCount,
       };
     })
-    .get();
+    .get(); // Convertir en tableau
 };
+
 
 
 /**
@@ -70,7 +62,12 @@ const parse = data => {
  * @returns 
  */
 module.exports.scrape = async url => {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+    }
+  });
+
 
   if (response.ok) {
     const body = await response.text();
