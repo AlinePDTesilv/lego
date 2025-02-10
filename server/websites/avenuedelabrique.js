@@ -13,8 +13,10 @@ const parse = data => {
     .map((i, element) => {
       const price = parseFloat(
         $(element)
-          .find('span.prodl-prix span')
-          .text()
+        .find('span.text--b.size--all-xl.size--fromW3-xxl.thread-price')
+        .text()
+        .replace(/[^\d,.-]/g, '') // Enlever les caractères non numériques
+        .replace(',', '.') // Remplacer la virgule par un point pour la conversion
       );
 
       const discount = Math.abs(parseInt(

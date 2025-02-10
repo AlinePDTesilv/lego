@@ -4,78 +4,67 @@ const cheerio = require('cheerio');
 /**
  * Parse webpage data response
  * @param  {String} data - html response
- * @return {Object[]} deals - Extracted deals
+ * @return {Array} deals
  */
 const parse = data => {
-  const $ = cheerio.load(data, { xmlMode: false });
+  const $ = cheerio.load(data, {'xmlMode': true});
 
-  return $('article.thread') // Sélectionne chaque deal
+  return $('div.js-threadList article') // Sélectionner chaque deal
     .map((i, element) => {
-      // Extraction du titre
-      const titleElement = $(element).find('.thread-title a');
-      const title = titleElement.attr('title') ? titleElement.attr('title').trim() : 'Titre non trouvé';
+      
+      const link = $(element)
+      .find('a[data-t="threadLink"]')
+      .attr('href');
 
-      // Extraction du prix
-      let priceText = $(element).find('.thread-price').text().trim();
-      let price = priceText ? parseFloat(priceText.replace(/[^\d,\.]/g, '').replace(',', '.')) : null;
+      const data = JSON.parse($(element)
+      .find('div.js-vue2')
+      .attr('data-vue2'));
 
-      // Extraction de la réduction
-      let discountText = $(element).find('.thread-price .textBadge--green').text().trim();
-      let discount = discountText ? parseInt(discountText.replace('%', '')) : null;
+      const thread = data.props.thread;
 
-      // Extraction de la température
-      let temperatureText = $(element).find('.cept-vote-temp').text().trim();
-      let temperature = temperatureText || 'Température non trouvée';
+      const title = thread.title;
+  
+      const retail = thread.nextBestPrice;
 
-      // Extraction du nombre de commentaires
-      let commentsText = $(element).find('.button--mode-secondary').text().trim();
-      let commentsCount = commentsText ? parseInt(commentsText.replace(/\D/g, '')) : 0;
+      const price = thread.price;
 
-      // DEBUG : Afficher les données récupérées pour chaque article
-      console.log(`Article ${i + 1}:`, {
-        title,
-        priceText,
-        price,
-        discountText,
-        discount,
-        temperature,
-        commentsText,
-        commentsCount,
-      });
+      const discount = parseInt((retail-price) /retail*100);
 
-      return {
-        title,
-        price,
-        discount,
-        temperature,
-        commentsCount,
-      };
+      const temperature = +thread.temperature;
+      const comments = +thread.commentCount;
+      const published = thread.publishedAt;
+
+      const data2 = JSON.parse($(element).attr('data-t-d'));
+      
+      // Extraire les informations pertinentes
+      const id = data2.id;
+
+      return { link, title, retail, price, discount, temperature, comments, published, id};
+
     })
-    .get(); // Convertir en tableau
+    .get();
 };
-
-
 
 /**
  * Scrape a given url page
  * @param {String} url - url to parse
- * @returns 
+ * @returns {Promise<Array>} deals
  */
 module.exports.scrape = async url => {
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-    }
-  });
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
 
+    if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
 
-  if (response.ok) {
     const body = await response.text();
-
     return parse(body);
+  } catch (error) {
+    console.error('Erreur lors du scraping:', error);
+    return null;
   }
-
-  console.error(response);
-
-  return null;
 };
+
