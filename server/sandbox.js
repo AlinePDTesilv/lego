@@ -21,7 +21,7 @@ const [,, eshop] = process.argv;
 sandbox(eshop); */
 
 
-/* eslint-disable no-console, no-process-exit */ 
+/* eslint-disable no-console, no-process-exit  
 
 const dealabs = require('./websites/dealabs');
 
@@ -43,5 +43,22 @@ async function sandbox(website = 'https://www.dealabs.com/groupe/lego') {
 // Récupérer l'argument de ligne de commande pour un site spécifique, sinon utiliser le site par défaut
 const [,, eshop] = process.argv;
 
-sandbox(eshop);
+sandbox(eshop); */
+
+const fetchVintedData = require('./websites/vinted.js'); // Importer vinted.js
+
+const legoIDs = ["60363", "43231", "42182", "75403", "75404", "42202"]; // Liste d'IDs LEGO à scraper
+
+async function main() {
+    for (const id of legoIDs) {
+        console.log(`🔎 Recherche pour l'ID LEGO: ${id}`);
+        const annonces = await fetchVintedData(id);
+        
+        console.log(`📌 ${annonces.length} annonces trouvées pour ${id}:`);
+        console.log(annonces);
+    }
+}
+
+main();
+
 
