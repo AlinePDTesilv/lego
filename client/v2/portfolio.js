@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   render(currentDeals, currentPagination);
 });
 
+
 // Feature 5 - Sort by price
 // Sélectionner le menu déroulant pour le tri (EXEPENSIVE_CHEAP_ANCIENT_RECENT)
 const sortSelect = document.getElementById('sort-select');
@@ -454,27 +455,7 @@ fetchAndDisplayPriceIndicators(currentPagination.currentPage, parseInt(selectSho
 
 // Sélectionner le menu déroulant pour le Lego Set ID
 
-legoSetSelect.addEventListener('change', async (event) => {
-  const selectedId = event.target.value.toString(); // Convertir en chaîne
 
-  if (!selectedId) {
-    return;
-  }
-
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value, 10));
-
-  // Filtrer les deals avec l'ID en tant que chaîne
-  const sortedDeals = allDeals.result.filter(deal => deal.id === selectedId);
-
-  if (sortedDeals.length > 0) {
-    const deal = sortedDeals[0]; // Un seul deal attendu pour un ID unique
-    const lifetimeValue = calculateLifetimeValue(deal); // Calculer le Lifetime Value
-    updateAverageLifetime(lifetimeValue); // Mettre à jour l'affichage
-  } else {
-    // Si aucun deal trouvé
-    document.getElementById('lifetime_val').textContent = `No deal found for ID: ${selectedId}`;
-  }
-});
 
 // Fonction pour calculer le Lifetime Value
 function calculateLifetimeValue(deal) 
@@ -494,5 +475,180 @@ function updateAverageLifetime(lifetimeValue)
 }
 
 
+
 //FEATURE: Display the vinted sales for a specified id
 
+// Function to fetch sales from Vinted API
+const fetchVintedSales = async (id) => {
+  try {
+    const response = await fetch(`https://lego-api-blue.vercel.app/sales?id=${id}`);
+    const body = await response.json();
+
+    if (body.success !== true) {
+      console.error(body);
+      return [];
+    }
+
+    return body.data.result || [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+// Modify the event listener to handle fetching and displaying data from both APIs
+
+legoSetSelect.addEventListener('change', async (event) => {
+  const selectedId = event.target.value.toString(); // Convertir en chaîne
+
+  if (!selectedId) {
+    return;
+  }
+
+  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value, 10));
+  const vintedSales = await fetchVintedSales(selectedId);
+
+  // Filtrer les deals avec l'ID en tant que chaîne
+  const sortedDeals = allDeals.result.filter(deal => deal.id === selectedId);
+
+  if (sortedDeals.length > 0 || vintedSales.length > 0) {
+    const deal = sortedDeals[0]; // Un seul deal attendu pour un ID unique
+    const lifetimeValue = calculateLifetimeValue(deal); // Calculer le Lifetime Value
+    updateAverageLifetime(lifetimeValue); // Mettre à jour l'affichage
+
+    // Render deals and Vinted sales
+    renderDealsAndSales(sortedDeals, vintedSales);
+  } else {
+    document.getElementById('deals').innerHTML = `<p>No deals found for ID: ${selectedId}</p>`;
+  }
+});
+
+// Function to render deals and Vinted sales
+const renderDealsAndSales = (deals, sales) => {
+  const fragment = document.createDocumentFragment();
+  const div = document.createElement('div');
+
+  const dealsTemplate = deals
+    .map((deal) => {
+      const datePublished = new Date(deal.published * 1000).toLocaleDateString();
+      const discountPercentage = deal.discount;
+      const price = deal.price;
+      const retailPrice = deal.retail;
+      const photo = deal.photo;
+      const commentsCount = deal.comments;
+      const temperature = deal.temperature;
+      const title = deal.title;
+      const dealLink = deal.link;
+
+      
+      return `
+      <div class="deal-card" id="deal-${deal.uuid}">
+        <div class="deal-header">
+          <img src="${photo}" alt="${title}" class="deal-photo">
+          <h3>${title}</h3>
+          <span class="deal-date">Published: ${datePublished}</span>
+        </div>
+        <div class="deal-body">
+          <p><strong>Price:</strong> €${price} <span class="original-price">€${retailPrice}</span></p>
+          <p><strong>Discount:</strong> ${discountPercentage}%</p>
+          <p><strong>Temperature:</strong> ${temperature}°C</p>
+          <p><strong>Comments:</strong> ${commentsCount}</p>
+        </div>
+        <div class="deal-footer">
+          <a href="${dealLink}" target="_blank" class="see-deal-button">See the deal</a>
+        </div>
+      </div>
+      `;
+    })
+    .join('');
+
+
+    const salesTemplate = sales
+    .map((sale) => {
+      const datePublished = new Date(sale.published).toLocaleDateString();
+      const price = sale.price;
+      const title = sale.title;
+      const saleLink = sale.link;
+
+      // Utiliser la photo du deal correspondant
+      const logoVinted = 'https://play-lh.googleusercontent.com/Hs8pq7sF8ihEfencKzLZZh7w6A4jDF5CsALfnccHffE3P6rccKXULHXsdi6QrwuayDI';
+
+      return `
+      <div class="sale-card" id="sale-${sale.uuid}">
+        <div class="sale-header">
+          <img src="${logoVinted}" class="sale-photo">
+        </div>
+        <div class="sale-body">
+          <h3>${title}</h3>
+          <p><strong>Price:</strong> €${price}</p>
+        </div>
+        <div class="sale-footer">
+          <span class="sale-date">Published: ${datePublished}</span>
+          <a href="${saleLink}" target="_blank" class="see-sale-button">See the sale</a>
+        </div>
+      </div>
+      `;
+    })
+    .join('');
+
+  div.innerHTML = `<h2>Deals</h2>${dealsTemplate}<h2>Vinted Sales</h2>${salesTemplate}`;
+  fragment.appendChild(div);
+  sectionDeals.innerHTML = '';
+  sectionDeals.appendChild(fragment);
+};
+
+/* FEATURE: showcasing the number of sales vinted for a specific id 
+
+
+
+function calculatePriceIndicators(sales) {
+  if (!sales || sales.length === 0) {
+    // Retourne des valeurs par défaut si aucun deal n'est disponible
+    return { p5: 0, p25: 0, p50: 0, nbDeals: 0, nbSales: 0 };
+  }
+
+  // Extraire les prix et les trier
+  const prices = sales.map(sale => sale.price).sort((a, b) => a - b);
+
+  // Calcul des indicateurs statistiques
+  const p5 = prices[Math.floor(prices.length * 0.05)] || 0;
+  const p25 = prices[Math.floor(prices.length * 0.25)] || 0;
+  const p50 = prices[Math.floor(prices.length * 0.5)] || 0;
+  const nbDeals = 1;
+  const nbSales = sales.length;
+
+  return { p5, p25, p50, nbDeals, nbSales };
+}
+
+// Fonction pour mettre à jour l'affichage des indicateurs
+function updatePriceIndicators(indicators) {
+  // Vérifier que les indicateurs existent
+  if (!indicators) return;
+
+  // Mettre à jour les éléments HTML correspondants
+  document.getElementById('nbDeals').textContent = indicators.nbDeals;
+  document.getElementById('nbSales').textContent = indicators.nbSales;
+  document.getElementById('nb_p5').textContent = indicators.p5;
+  document.getElementById('nb_p25').textContent = indicators.p25;
+  document.getElementById('nb_p50').textContent = indicators.p50;
+}
+
+// Fonction principale pour récupérer les deals et calculer les indicateurs
+async function fetchAndDisplayPriceIndicators(page = 1, size = 6) {
+  try {
+    // Récupérer les deals avec la fonction fetchDeals
+    const data = await fetchVintedSales(page, size);
+    const sales = data.result;
+
+    // Calculer les indicateurs
+    calculatedIndicators = calculatePriceIndicators(sales);
+
+    // Mettre à jour l'affichage des indicateurs
+    updatePriceIndicators(calculatedIndicators);
+  } catch (error) {
+    console.error("Erreur lors de la récupération ou de l'affichage des indicateurs :", error);
+  }
+}
+
+// Appeler fetchAndDisplayPriceIndicators à chaque chargement ou mise à jour de page
+fetchAndDisplayPriceIndicators(currentPagination.currentPage, parseInt(selectShow.value)); */
