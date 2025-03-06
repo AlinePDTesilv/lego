@@ -23,19 +23,31 @@ sandbox(eshop); */
 
 // eslint-disable no-console, no-process-exit  
 
-/* const dealabs = require('./websites/dealabs');
+const dealabs = require('./websites/dealabs');
+require('dotenv').config({ path: './dataBase.env' }); // Charger les variables d'environnement
+const { connectToDatabase } = require('./database');
 
 async function sandbox(website = 'https://www.dealabs.com/groupe/lego') {
   try {
     console.log(`🕵️‍♀️  browsing ${website} website`);
     
     const deals = await dealabs.scrape(website);
+    if (!deals || deals.length === 0) {
+      console.log("❌ Aucun deal trouvé !");
+      return;
+    }
 
-    console.log(deals);
-    console.log('done');
+    // Connexion à la base de données
+    const db = await connectToDatabase();
+    const collection = db.collection('deals');
+
+// Insérer les deals dans MongoDB
+    const result = await collection.insertMany(deals);
+    console.log(`✅ ${result.insertedCount} deals ajoutés à la base de données !`);
+
     process.exit(0);
   } catch (e) {
-    console.error(e);
+    console.error("❌ Erreur :", e);
     process.exit(1);
   }
 }
@@ -43,11 +55,11 @@ async function sandbox(website = 'https://www.dealabs.com/groupe/lego') {
 // Récupérer l'argument de ligne de commande pour un site spécifique, sinon utiliser le site par défaut
 const [,, eshop] = process.argv;
 
-sandbox(eshop);*/ 
+sandbox(eshop); 
 
 
 
-const fetchVintedData = require('./websites/vinted'); // Importer vinted.js
+/*const fetchVintedData = require('./websites/vinted'); // Importer vinted.js
 const fs = require('fs'); // Importer le module fs
 
 const legoIDs = ['42182', '60363', '43231', '75403', '75404', '21034', '42635', '75405', 
@@ -73,6 +85,6 @@ async function main() {
 
 }
 
-main();   
+main(); */  
 
 
