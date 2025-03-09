@@ -1,5 +1,5 @@
 
-require('dotenv').config(); // Charger les variables d'environnement
+require('dotenv').config({ path: './dataBase.env' });  // Charger les variables d'environnement depuis dataBase.env
 const { MongoClient } = require('mongodb');
 
 const MONGODB_URI = process.env.MONGODB_URI;

@@ -23,9 +23,11 @@ sandbox(eshop); */
 
 // eslint-disable no-console, no-process-exit  
 
-const dealabs = require('./websites/dealabs');
+/*const dealabs = require('./websites/dealabs');
 require('dotenv').config({ path: './dataBase.env' }); // Charger les variables d'environnement
 const { connectToDatabase } = require('./database');
+
+const { findBestDiscountDeals } = require('./salesQueries');
 
 async function sandbox(website = 'https://www.dealabs.com/groupe/lego') {
   try {
@@ -55,16 +57,14 @@ async function sandbox(website = 'https://www.dealabs.com/groupe/lego') {
 // Récupérer l'argument de ligne de commande pour un site spécifique, sinon utiliser le site par défaut
 const [,, eshop] = process.argv;
 
-sandbox(eshop); 
+sandbox(eshop); */
 
 
 
-/*const fetchVintedData = require('./websites/vinted'); // Importer vinted.js
+const fetchVintedData = require('./websites/vinted'); // Importer vinted.js
 const fs = require('fs'); // Importer le module fs
 
-const legoIDs = ['42182', '60363', '43231', '75403', '75404', '21034', '42635', '75405', 
-                 '76266', '42176', '42635', '71460', '42202', '40524', '75402', '76262',
-                 '77051', '71387', '76303', '21333', '43224', '10363', '60373', '72032']; // Liste d'IDs LEGO à scraper
+const legoIDs = ['42182', '60363', '43231', '75403', '75404', '21034']; // Liste d'IDs LEGO à scraper
 
 async function main() {
     const allAnnonces = [];
@@ -85,6 +85,6 @@ async function main() {
 
 }
 
-main(); */  
+main(); 
 
 
