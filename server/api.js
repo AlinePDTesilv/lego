@@ -33,7 +33,21 @@ app.get('/', (req, res) => {
   res.send({ ack: true });
 });
 
-// GET /deals/:id - Récupérer un deal par ID
+// GET /deals - Récupérer tous les deals
+app.get('/deals', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: "La base de données n'est pas connectée" });
+    }
+
+    const deals = await db.collection('deals').find().toArray();
+    res.json(deals);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des deals:', error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
+  }
+});
+
 app.get('/deals/:id', async (req, res) => {
   try {
     if (!db) {
@@ -41,6 +55,13 @@ app.get('/deals/:id', async (req, res) => {
     }
 
     const { id } = req.params;
+
+    // Vérifie si l'ID est valide avant de l'utiliser
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID invalide' });
+    }
+
+    // Recherche du deal avec _id (ObjectId)
     const deal = await db.collection('deals').findOne({ _id: new ObjectId(id) });
 
     if (!deal) {
@@ -53,6 +74,49 @@ app.get('/deals/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 });
+
+// EndPoint GET /sales - Récupérer toutes les ventes
+app.get('/sales', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Base de données non connectée' });
+    }
+    const sales = await db.collection('sales').find({}).toArray();
+    res.json(sales);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des ventes:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+});
+
+
+// GET /sales/:id - Récupérer une vente par ID
+app.get('/sales/:id', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ error: "La base de données n'est pas encore connectée" });
+    }
+
+    const { id } = req.params;
+
+    // Vérifier si l'ID est un ObjectId valide
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'ID invalide' });
+    }
+
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(id) });
+
+    if (!sale) {
+      return res.status(404).json({ error: 'Vente non trouvée' });
+    }
+
+    res.json(sale);
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la vente:', error);
+    res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+});
+
 
 // Lancer le serveur après connexion à MongoDB
 connectToDatabase().then(() => {
