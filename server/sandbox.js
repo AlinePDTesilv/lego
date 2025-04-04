@@ -48,6 +48,7 @@ async function fetchAndStoreVinted(db) {
 async function main() {
     try {
         const db = await connectToDatabase();
+        console.log("🔗 Connexion à MongoDB...");
         await Promise.all([fetchAndStoreDealabs(db), fetchAndStoreVinted(db)]);
         console.log("✅ Données de Dealabs et Vinted stockées avec succès !");
         process.exit(0);

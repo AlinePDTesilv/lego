@@ -1,217 +1,297 @@
+
 /* styles.css */
 /* Couleur principale utilisée : #3F7B79 */
 
-/* Styles de base pour le corps de la page */
 body {
-  font-family: Arial, sans-serif; /* Police simple et lisible */
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f9f9f9; /* Fond clair pour un contraste agréable */
+  background-color: #f9f9f9;
 }
 
-/* Style du titre principal de la page */
 h1 {
   text-align: center;
-  background-color: #3F7B79; /* Couleur principale */
-  color: white; /* Contraste élevé pour le texte */
+  background-color: #3F7B79;
+  color: white;
   padding: 20px;
   margin: 0;
 }
 
-/* Conteneur principal qui regroupe la barre latérale et les offres */
 .container {
-  display: flex; /* Disposition en ligne (flexbox) */
-  margin: 20px; /* Espacement général autour du conteneur */
+  display: flex;
+  margin: 20px;
 }
 
 /* Section de la barre latérale gauche */
 .sidebar {
-  width: 30%; /* Largeur de la barre latérale */
+  width: 30%;
   padding: 20px;
-  background-color: #7eb2b2; /* Fond blanc pour un contraste avec la page */
-  border-radius: 10px; /* Coins arrondis */
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  background-color: #7eb2b2;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column; /* Alignement vertical des éléments */
-  align-items: center; /* Centrer les éléments horizontalement */
+  flex-direction: column;
+  align-items: center;
 }
 
 .sidebar section {
-  margin-bottom: 20px; /* Espacement entre les sections */
-  width: 90%; /* Chaque section occupe toute la largeur */
-  text-align: center; /* Centrer le contenu des sections */
+  margin-bottom: 30px;
+  width: 90%;
+  text-align: center;
 }
 
 /* Titres dans la barre latérale */
 .sidebar h2 {
-  font-size: 22px; /* Taille de police pour les titres */
-  margin-bottom: 20px; /* Espacement sous le titre */
-  border-bottom: 3px solid #3F7B79; /* Ligne décorative sous les titres */
-  padding-bottom: 8px; /* Espacement entre le texte et la ligne */
+  font-size: 22px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #3F7B79;
+  padding-bottom: 8px;
 }
 
-/* Style des étiquettes et des filtres */
+/* Style des étiquettes et filtres */
 .sidebar label {
-  display: inline-block; /* Bloc pour le positionnement */
+  display: inline-block;
   font-size: 14px;
-  margin-bottom: 30px; /* Espacement sous chaque label */
+  margin-bottom: 10px;
 }
 
 .sidebar .filter-title {
   display: flex;
-  justify-content: space-between; /* Espacer les filtres */
+  justify-content: space-between;
   align-items: center;
-  width: 70%; /* Limite la largeur des filtres */
-  margin: 0 auto 5px; /* Centre les filtres horizontalement */
+  width: 70%;
+  margin: 0 auto 5px;
   font-size: 14px;
 }
 
-.sidebar select,
+/* Range slider pour prix max */
+/* Champ texte de prix max à côté du libellé */
+.price-input {
+  width: 80px;
+  margin-left: 10px;
+  padding: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  text-align: right;
+  font-size: 14px;
+}
+
+/* Beau slider */
 .sidebar input[type="range"] {
-  width: 70%; /* Les filtres occupent 70% de la largeur */
-  padding: 10px; /* Espacement intérieur pour un look plus équilibré */
-  margin: 0 auto; /* Centrage automatique */
-  border-radius: 5px; /* Coins arrondis */
-  border: 1px solid #ccc; /* Bordure légère */
+  -webkit-appearance: none;
+  width: 90%;
+  height: 12px;
+  margin: 10px auto;
+  display: block;
+  background: #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  cursor: pointer;
 }
 
-/* Indicateurs des valeurs des filtres */
-.indicators {
-  text-align: left; /* Texte aligné à gauche */
+.sidebar input[type="range"]::-webkit-slider-runnable-track {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.sidebar input[type="range"]::-moz-range-track {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.sidebar input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 22px;
+  width: 22px;
+  background: #007bff;
+  border-radius: 50%;
+  border: none;
+  margin-top: -5px;
+  transition: background 0.3s;
+}
+
+.sidebar input[type="range"]::-moz-range-thumb {
+  height: 22px;
+  width: 22px;
+  background: #007bff;
+  border-radius: 50%;
+  border: none;
+  transition: background 0.3s;
+}
+
+.sidebar input[type="range"]:hover::-webkit-slider-thumb,
+.sidebar input[type="range"]:hover::-moz-range-thumb {
+  background: #0056b3;
+}
+
+.sidebar select {
+  width: 90%;
+  padding: 10px;
   font-size: 14px;
-  margin-top: 10px; /* Espacement au-dessus des indicateurs */
-  padding: 10px; /* Espacement intérieur */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: white;
+  color: #333;
+  margin-top: 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'5'%20viewBox%3D'0%200%2010%205'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M0%200l5%205%205-5z'%20fill%3D'%233F7B79'%20/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.sidebar select:focus {
+  outline: none;
+  border-color: #3F7B79;
+  box-shadow: 0 0 5px rgba(63, 123, 121, 0.5);
+}
+
+/* Indicateurs */
+.indicators {
+  text-align: left;
+  font-size: 14px;
+  margin-top: 10px;
+  padding: 10px;
 }
 
 .indicators div {
   display: flex;
-  justify-content: space-between; /* Équilibre des indicateurs sur une ligne */
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px; /* Espacement entre chaque indicateur */
+  margin-bottom: 8px;
 }
 
 /* Conteneur des offres à droite */
 .deals-container {
-  width: 70%; /* Largeur principale pour afficher les offres */
-  margin-left: 70px; /* Espacement entre la barre latérale et les offres */
+  width: 70%;
+  margin-left: 70px;
 }
 
-/* Style des cartes d'offres */
+.vinted-card {
+  border: 2px solid #00c7b7;
+  background-color: #e6fffb;
+}
+
+.dealabs-card {
+  border: 2px solid #6fabdc;
+  background-color: #fff3e0;
+}
+
+.brand-logo {
+  height: 18px;
+  margin-top: 6px;
+  display: block;
+}
+
+.deal-photo {
+  width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+}
+
 .deal-card {
-  /* Cartes pour chaque deal */
   display: flex;
-  background-color: #ffffff; /* Fond blanc pour un contraste propre */
-  border-radius: 12px; /* Coins arrondis pour un design moderne */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin-bottom: 20px; /* Espacement entre les cartes */
-  transition: transform 0.3s ease; /* Animation sur hover */
-  max-width: 90%; /* Limite la largeur totale */
-  justify-content: space-between; /* Espacement des sections dans la carte */
-  align-items: center; /* Aligne verticalement les sections */
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+  max-width: 90%;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .deal-card:hover {
-  /* Animation au survol */
   transform: scale(1.05);
 }
 
 .deal-header {
-  /* Section de la carte contenant l'image et le titre */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  max-width: 250px; /* Limite la largeur des photos et titres */
+  max-width: 250px;
 }
 
 .deal-photo {
-  /* Image de la carte */
   max-width: 80%;
-  border-radius: 8px; /* Coins arrondis */
-  height: auto; /* Maintient le ratio */
+  border-radius: 8px;
+  height: auto;
 }
 
 .deal-header h3 {
-  /* Titre du deal */
   font-size: 1.1em;
   margin-top: 10px;
   font-weight: bold;
   text-align: left;
-  color: #3F7B79; /* Vert principal pour le titre */
+  color: #3F7B79;
 }
 
 .deal-date {
-  /* Date affichée dans la carte */
   font-size: 0.9em;
-  color: #555; /* Texte gris subtil */
+  color: #555;
   margin-top: 5px;
   text-align: left;
 }
 
 .deal-body {
-  /* Section centrale avec la description */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-left: 20px;
-  flex-grow: 1; /* Prend tout l'espace restant */
+  flex-grow: 1;
 }
 
 .deal-body p {
-  /* Paragraphe dans la description */
   font-size: 1em;
   margin: 5px 0;
-  color: #333; /* Noir doux pour les textes */
+  color: #333;
 }
 
 .original-price {
-  /* Prix barré pour les promotions */
   text-decoration: line-through;
-  color: #888; /* Gris clair */
+  color: #888;
   margin-left: 10px;
 }
 
 .deal-footer {
-  /* Pied de la carte (généralement le bouton "Voir le deal") */
   margin-top: 15px;
   text-align: right;
 }
 
 .see-deal-button {
-  /* Bouton principal */
   padding: 10px 20px;
-  background-color: #3F7B79; /* Vert principal */
+  background-color: #3F7B79;
   color: white;
   text-decoration: none;
-  border-radius: 5px; /* Coins arrondis */
+  border-radius: 5px;
   font-weight: bold;
-  transition: background-color 0.2s ease; /* Animation au survol */
+  transition: background-color 0.2s ease;
 }
 
 .see-deal-button:hover {
-  /* Survol du bouton */
-  background-color: #285956; /* Une nuance légèrement plus sombre de vert */
+  background-color: #285956;
 }
 
-
-
-/*visual for the vinted sales cards */
-
-/* Styles for sale cards */
+/* visual for the vinted sales cards */
 .sale-card {
   display: flex;
   flex-direction: column;
-  background-color: #ffffff; /* Couleur de fond différente pour les ventes de Vinted */
-  border-radius: 12px; /* Coins arrondis pour un design moderne */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin-bottom: 20px; /* Espacement entre les cartes */
-  transition: transform 0.3s ease; /* Animation sur hover */
-  max-width: 90%; /* Limite la largeur totale */
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+  max-width: 90%;
 }
 
 .sale-card:hover {
-  /* Animation au survol */
   transform: scale(1.05);
 }
 
@@ -222,13 +302,13 @@ h1 {
 .sale-header h3 {
   font-size: 1.2em;
   font-weight: bold;
-  color: #00796b; /* Couleur principale pour le titre */
+  color: #00796b;
 }
 
 .sale-photo {
   max-width: 5%;
-  border-radius: 8px; /* Coins arrondis */
-  height: auto; /* Maintient le ratio */
+  border-radius: 8px;
+  height: auto;
   margin-bottom: 10px;
 }
 
@@ -239,19 +319,19 @@ h1 {
 
 .sale-body p {
   font-size: 1.1em;
-  color: #333; /* Noir doux pour les textes */
+  color: #333;
 }
 
 .sale-footer {
   display: flex;
-  justify-content: space-between; /* Ajoute de l'espace entre les éléments */
+  justify-content: space-between;
   align-items: center;
   margin-top: 15px;
 }
 
 .sale-footer .sale-date {
   font-size: 0.9em;
-  color: #555; /* Texte gris subtil */
+  color: #555;
 }
 
 .see-sale-button {

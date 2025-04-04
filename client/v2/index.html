@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,60 +9,31 @@
   <body>
     <h1>Lego</h1>
     <div class="container">
-      <!-- Left Sidebar -->
+      <!-- Sidebar Gauche -->
       <div class="sidebar">
-        <section>
-          <h2>Show & Page</h2>
-          <div>
-            <label for="show-select">Show:</label>
-            <select name="show" id="show-select">
-              <option value="6">6</option>
-              <option value="12">12</option>
-              <option value="24">24</option>
-            </select>
-          </div>
-          <div>
-            <label for="page-select">Page:</label>
-            <select name="page" id="page-select"> </select>
-          </div>
-        </section>
-
         <!-- Section Filter -->
         <section>
           <h2>Filter</h2>
           <div>
             <div class="filter-title">
-              <span>Discount:</span>
-              <span id="discount-value">0%</span>
+              <span>Prix maximum :</span>
+              <input type="number" id="price-max-input" min="10" max="500" step="10" value="100" class="price-input"> €
             </div>
-            <input type="range" id="discount-slider" min="0" max="100" step="10" value="0">
-          </div>
-          <div>
-            <div class="filter-title">
-              <span>Comments:</span>
-              <span id="comment-value">0</span>
-            </div>
-            <input type="range" id="comment-range" min="0" max="100" step="5" value="0">
-          </div>
-          <div>
-            <div class="filter-title">
-              <span>Temperature:</span>
-              <span id="hot-deals-value">0</span>
-            </div>
-            <input type="range" id="hot-deals-range" min="0" max="200" step="10" value="0">
+            <input type="range" id="price-max-slider" min="10" max="500" step="10" value="100">
           </div>
         </section>
 
         <!-- Section Sort -->
         <section>
           <h2>Sort</h2>
-          <label for="sort-select">Sort:</label>
+          <label for="sort-select"> </label>
           <select name="sort" id="sort-select">
+            <option value="default">Default</option>
             <option value="price-asc">By Price (Cheaper)</option>
             <option value="price-desc">By Price (Expensive)</option>
             <option value="date-asc">By Date (Recently published)</option>
             <option value="date-desc">By Date (Anciently published)</option>
-            <option value="vinted_d">Vinted Deals</option>
+            <option value="vinted_d">Vinted Sales</option>
             <option value="dealabs_d">Dealabs Deals</option>
           </select>
         </section>
@@ -96,7 +68,7 @@
         </section>
       </div>
 
-      <!-- Right Column (Deals) -->
+      <!-- Colonne Droite (Deals) -->
       <div class="deals-container">
         <h2>Lego Sets</h2>
         <div>
@@ -104,25 +76,22 @@
           <select id="lego-set-id-select"></select>
         </div>
 
-        <!-- Deals List (Example) -->
+        <!-- Deals List -->
         <section id="deals">
           <div class="deal-card">
             <!-- Colonne gauche (Image) -->
             <div class="deal-photo-container">
               <img src="PHOTO_URL" alt="Deal Image" class="deal-photo">
             </div>
-            <!-- Colonne droite (Titre et informations) -->
+            <!-- Colonne droite (Infos) -->
             <div class="deal-content">
-              <!-- Titre -->
               <h3 class="deal-title">DEAL_TITLE</h3>
-              <!-- Informations -->
               <div class="deal-info">
                 <span><strong>Price:</strong> DEAL_PRICE</span>
                 <span><strong>Discount:</strong> DISCOUNT%</span>
                 <span><strong>Temperature:</strong> TEMPERATURE</span>
                 <span><strong>Comments:</strong> NUMBER_OF_COMMENTS</span>
               </div>
-              <!-- Footer -->
               <div class="deal-footer">
                 <span class="deal-date">Published: PUBLICATION_DATE</span>
                 <a href="DEAL_LINK" class="see-deal-button" target="_blank">See the deal</a>
@@ -130,8 +99,11 @@
             </div>
           </div>
         </section>
+      </div>
+    </div>
 
     <script type="text/javascript" charset="UTF-8" src="utils.js"></script>
     <script type="text/javascript" charset="UTF-8" src="portfolio.js"></script>
   </body>
 </html>
+

@@ -1,5 +1,5 @@
 // Invoking strict mode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#invoking_strict_mode
-'use strict';
+
 
 /**
 Description of the available api
@@ -21,15 +21,17 @@ This endpoint accepts the following optional query string parameters:
 - `id` - lego set id to return
 */
 
-// current deals on the page
+// Invoking strict mode
+'use strict';
+
+// Current deals and pagination
 let currentDeals = [];
 let currentPagination = {};
 
-// instantiate the selectors
+// Selectors
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
-const selectLegoSetIds = document.querySelector('#lego-set-id-select');
-const sectionDeals= document.querySelector('#deals');
+const sectionDeals = document.querySelector('#deals');
 const spanNbDeals = document.querySelector('#nbDeals');
 
 /**
@@ -37,329 +39,250 @@ const spanNbDeals = document.querySelector('#nbDeals');
  * @param {Array} result - deals to display
  * @param {Object} meta - pagination meta info
  */
-const setCurrentDeals = ({result, meta}) => {
+const setCurrentDeals = ({ result, meta }) => {
   currentDeals = result;
   currentPagination = meta;
 };
 
 /**
- * Fetch deals from api
+ * Fetch deals from Dealabs API
  * @param  {Number}  [page=1] - current page to fetch
- * @param  {Number}  [size=12] - size of the page
+ * @param  {Number}  [size=6] - size of the page
  * @return {Object}
  */
-
-//FEATURE 0: display 6, 12 or 24 deals on the same page
-const fetchDeals = async (page = 1, size = 6) => 
-{
+const fetchDeals = async (page = 1, size = 6) => {
   try {
     const response = await fetch(
-      `https://lego-api-blue.vercel.app/deals?page=${page}&size=${size}`
+      `https://server-two-teal-60.vercel.app/deals?page=${page}&size=${size}`
     );
     const body = await response.json();
 
-    if (body.success !== true) {
-      console.error(body);
-      return {currentDeals, currentPagination};
+    if (!Array.isArray(body)) {
+      console.error('Erreur : données invalides reçues de l\'API Dealabs', body);
+      return { result: [], meta: {} };
     }
 
-    return body.data;
+    return {
+      result: body,
+      meta: {
+        currentPage: page,
+        pageCount: Math.ceil(body.length / size),
+        count: body.length,
+      },
+    };
   } catch (error) {
-    console.error(error);
-    return {currentDeals, currentPagination};
+    console.error('Erreur lors de la récupération des deals :', error);
+    return { result: [], meta: {} };
   }
 };
 
 /**
- * Render list of deals (visual of cards)
- * @param  {Array} deals
+ * Fetch sales from Vinted API
+ * @return {Array}
  */
-const renderDeals = (deals) => {
+const fetchVintedSales = async () => {
+  try {
+    const response = await fetch(`https://server-two-teal-60.vercel.app/sales`);
+    const body = await response.json();
+
+    if (!Array.isArray(body)) {
+      console.error('Erreur : données invalides reçues de l\'API Vinted', body);
+      return [];
+    }
+
+    return body;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des ventes Vinted :', error);
+    return [];
+  }
+};
+
+/**
+ * Render deals and sales in the same section
+ * @param  {Array} items - combined deals and sales
+ */
+// Fonction de rendu des deals et sales (pour les deux sources)
+const renderDealsAndSales = (items) => {
   const fragment = document.createDocumentFragment();
   const div = document.createElement('div');
-  
-  const template = deals
-    .map((deal) => {
-      const datePublished = new Date(deal.published * 1000).toLocaleDateString(); // Convertir la date UNIX en format lisible
-      const discountPercentage = deal.discount; // Utiliser le discount
-      const price = deal.price;
-      const retailPrice = deal.retail;
-      const photo = deal.photo;
-      const commentsCount = deal.comments;
-      const temperature = deal.temperature;
-      const title = deal.title;
-      const dealLink = deal.link;
+
+  // Afficher uniquement les éléments filtrés
+  const template = items
+    .map((item) => {
+      const datePublished = item.published ? new Date(item.published).toLocaleDateString() : 'N/A';
+      const price = item.price;
+      const title = item.title;
+      const link = item.link || '#';
+      const photo = item.photo || 'https://via.placeholder.com/150';
+      const retailPrice = item.retail || null;
+      const discount = item.discount || null;
+      const temperature = item.temperature || null;
+      const comments = item.comments || null;
+      const source = item.source || 'dealabs'; // fallback au cas où
+
+      const sourceClass = source === 'vinted' ? 'vinted-card' : 'dealabs-card';
+
+      const logoURL = source === 'vinted'
+        ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Vinted_logo.png/960px-Vinted_logo.png'
+        : 'https://upload.wikimedia.org/wikipedia/fr/thumb/5/57/Dealabs_Logo.svg/512px-Dealabs_Logo.svg.png?20201028202032';
 
       return `
-      <div class="deal-card" id="deal-${deal.uuid}">
-        <div class="deal-header">
-          <img src="${photo}" alt="${title}" class="deal-photo">
-          <h3>${title}</h3>
-          <span class="deal-date">Published: ${datePublished}</span>
+        <div class="deal-card ${sourceClass}" id="deal-${item._id || item.uuid}">
+          <div class="deal-header">
+            <img src="${photo}" alt="${title}" class="deal-photo">
+            <h3>${title}</h3>
+            <span class="deal-date">Published: ${datePublished}</span>
+            <img class="brand-logo" src="${logoURL}" alt="${source} logo">
+          </div>
+          <div class="deal-body">
+            <p><strong>Price:</strong> €${price}</p>
+            ${retailPrice ? `<p><strong>Retail Price:</strong> €${retailPrice}</p>` : ''}
+            ${discount ? `<p><strong>Discount:</strong> ${discount}%</p>` : ''}
+            ${temperature ? `<p><strong>Temperature:</strong> ${temperature}°C</p>` : ''}
+            ${comments ? `<p><strong>Comments:</strong> ${comments}</p>` : ''}
+          </div>
+          <div class="deal-footer">
+            <a href="${link}" target="_blank" class="see-deal-button">See the deal</a>
+          </div>
         </div>
-        <div class="deal-body">
-          <p><strong>Price:</strong> €${price} <span class="original-price">€${retailPrice}</span></p>
-          <p><strong>Discount:</strong> ${discountPercentage}%</p>
-          <p><strong>Temperature:</strong> ${temperature}°C</p>
-          <p><strong>Comments:</strong> ${commentsCount}</p>
-        </div>
-        <div class="deal-footer">
-          <a href="${dealLink}" target="_blank" class="see-deal-button">See the deal</a>
-        </div>
-      </div>
       `;
     })
     .join('');
 
   div.innerHTML = template;
   fragment.appendChild(div);
-  sectionDeals.innerHTML = '<h2>Deals</h2>';
+  sectionDeals.innerHTML = '<h2>Deals and Sales</h2>';
   sectionDeals.appendChild(fragment);
 };
 
 
-/**
- * Render page selector
- * @param  {Object} pagination
- */
-const renderPagination = pagination => 
-{
-  const {currentPage, pageCount} = pagination;
-  const options = Array.from(
-    {'length': pageCount},
-    (value, index) => `<option value="${index + 1}">${index + 1}</option>`
-  ).join('');
-
-  selectPage.innerHTML = options;
-  selectPage.selectedIndex = currentPage - 1;
-};
 
 /**
- * Render lego set ids selector
- * @param  {Array} lego set ids
+ * Initialize the page and fetch data from both APIs
  */
-const renderLegoSetIds = deals => {
-  const ids = getIdsFromDeals(deals);
-  const options = ids.map(id => 
-    `<option value="${id}">${id}</option>`
-  ).join('');
-
-  selectLegoSetIds.innerHTML = options;
-};
-
-/**
- * Render page selector
- * @param  {Object} pagination
- */
-const renderIndicators = pagination => {
-  const {count} = pagination;
-
-  spanNbDeals.innerHTML = count;
-};
-
-const render = (deals, pagination) => {
-  renderDeals(deals);
-  renderPagination(pagination);
-  renderIndicators(pagination);
-  renderLegoSetIds(deals)
-};
-
-
-
-//Now the select page event 
-selectPage.addEventListener('change', async (event) => {
-  const selectedPage = parseInt(event.target.value);
-  const deals = await fetchDeals(selectedPage, selectShow.value);
-  setCurrentDeals(deals);
-  render(currentDeals, currentPagination);
-});
-
-/**
- * Declaration of all Listeners
- */
-
-/**
- * Select the number of deals to display
- */
-selectShow.addEventListener('change', async (event) => {
-  const deals = await fetchDeals(currentPagination.currentPage, parseInt(event.target.value));
-
-  setCurrentDeals(deals);
-  render(currentDeals, currentPagination);
-});
-
 document.addEventListener('DOMContentLoaded', async () => {
-  const deals = await fetchDeals();
+  try {
+    const deals = await fetchDeals();
+    const sales = (await fetchVintedSales()).map(s => ({ ...s, source: 'vinted' }));
 
-  setCurrentDeals(deals);
-  render(currentDeals, currentPagination);
-});
+    const allItems = [
+      ...deals.result.map(d => ({ ...d, source: 'dealabs' })),
+      ...sales
+    ];
 
+    setCurrentDeals({ result: allItems, meta: deals.meta });
+    renderDealsAndSales(allItems); // Rendu initial des deals et sales
 
-// Feature 5 - Sort by price
-// Sélectionner le menu déroulant pour le tri (EXEPENSIVE_CHEAP_ANCIENT_RECENT)
-const sortSelect = document.getElementById('sort-select');
+    // Initialiser le prix maximum à 100€ et appliquer le filtre
+    const initialMaxPrice = 100;
+    const sortType = document.querySelector('#sort-select').value;
 
-// Ajouter un événement de changement au menu déroulant pour le tri
-sortSelect.addEventListener('change', async (event) => {
-  const selectedSort = event.target.value; // "price-asc", "price-desc", "date-asc", "date-desc"
+    // Appliquer les filtres et le tri dès le chargement de la page
+    filterAndSortDeals(initialMaxPrice, sortType);
 
-  // Récupérer les deals actuels et appliquer le tri
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
-
-  let sortedDeals;
-
-  if (selectedSort === 'price-asc') {
-    // Tri croissant par prix (Cheaper)
-    sortedDeals = allDeals.result.sort((a, b) => a.price - b.price);
-  } else if (selectedSort === 'price-desc') {
-    // Tri décroissant par prix (Expensive)
-    sortedDeals = allDeals.result.sort((a, b) => b.price - a.price);
-  } else if (selectedSort === 'date-asc') {
-    // Tri croissant par date (Recently published)
-    sortedDeals = allDeals.result.sort((a, b) => b.published - a.published); // Tri du plus récent au plus ancien
-  } else if (selectedSort === 'date-desc') {
-    // Tri décroissant par date (Anciently published)
-    sortedDeals = allDeals.result.sort((a, b) => a.published - b.published); // Tri du plus ancien au plus récent
-  }
-
-  // Mettre à jour les deals et leur pagination
-  setCurrentDeals({ result: sortedDeals, meta: allDeals.meta });
-  render(sortedDeals, allDeals.meta); // Affichage des deals triés
-});
-
-
-
-
-
-// Filter functions: 
-
-// Function to filter deals by percentage of reduction, with a minimum percentage given
-const filterByDiscount = (deals, minDiscount) => 
-{
-  return deals
-    .filter(deal => deal.discount >= minDiscount) // Filtrer les deals avec une réduction >= minDiscount
-    .sort((a, b) => b.discount - a.discount); // Trier par ordre décroissant de réduction
-};
-
-
-const filterByMostCommented = (deals, minComments) => 
-{
-  return deals.filter(deal => deal.comments >= minComments); // Filtrer les deals avec un nombre de commentaires >= minComments
-};
-
-
-const filterByHotDeals = (deals, minTemperature) => 
-{
-  return deals.filter(deal => deal.temperature >= minTemperature); // Filtrer les deals avec une température >= minTemperature
-};
-
-
-// Add event listeners for the filter buttons
-
-// Écouter les changements sur le curseur de réduction
-document.getElementById('discount-slider').addEventListener('input', async (event) => {
-  const selectedDiscount = parseInt(event.target.value); // Obtenez la valeur actuelle du curseur
-  document.getElementById('discount-value').textContent = `${selectedDiscount}%`; // Mettez à jour l'affichage de la valeur
-
-  // Récupérer les deals actuels
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
-
-  // Filtrer les deals en fonction de la réduction sélectionnée
-  const filteredDeals = filterByDiscount(allDeals.result, selectedDiscount);
-
-  // Mettre à jour et afficher les deals filtrés
-  setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
-  render(filteredDeals, allDeals.meta);
-});
-
-// Listen for the 'Most commented' button click
-const commentRange = document.getElementById('comment-range');
-const commentValue = document.getElementById('comment-value');
-
-// Mettre à jour la valeur affichée à côté du curseur
-commentRange.addEventListener('input', (event) => {
-  commentValue.textContent = event.target.value; // Met à jour la valeur dynamique
-});
-
-// Appliquer le filtre au changement de valeur
-commentRange.addEventListener('change', async (event) => {
-  const minComments = parseInt(event.target.value); // Récupère la valeur sélectionnée
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value)); // Récupère les deals actuels
-  
-  // Filtrer les deals selon le nombre minimum de commentaires
-  const filteredDeals = filterByMostCommented(allDeals.result, minComments);
-
-  // Mettre à jour les deals actuels et réafficher
-  setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
-  render(filteredDeals, allDeals.meta);
-});
-
-
-// Listen for the 'Hot deals' button click
-const hotDealsRange = document.getElementById('hot-deals-range');
-const hotDealsValue = document.getElementById('hot-deals-value');
-
-// Mettre à jour la valeur affichée à côté du curseur
-hotDealsRange.addEventListener('input', (event) => {
-  hotDealsValue.textContent = event.target.value; // Met à jour la valeur dynamique
-});
-
-// Appliquer le filtre au changement de valeur
-hotDealsRange.addEventListener('change', async (event) => {
-  const minTemperature = parseInt(event.target.value); // Récupère la valeur sélectionnée
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value)); // Récupère les deals actuels
-  
-  // Filtrer les deals selon la température minimum
-  const filteredDeals = filterByHotDeals(allDeals.result, minTemperature);
-
-  // Mettre à jour les deals actuels et réafficher
-  setCurrentDeals({ result: filteredDeals, meta: allDeals.meta });
-  render(filteredDeals, allDeals.meta);
-});
-
-
-
-//FEATURE 7 - Display Vinted or Dealabs sales
-
-const legoSortSelect = document.getElementById('sort-select');
-
-// Add an event listener to the dropdown for change events
-legoSortSelect.addEventListener('change', async (event) => {
-  const selectedSort = event.target.value;  // Get the selected value (sorting option)
-  let sortedDeals = [];
-
-  // Get current deals based on pagination
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
-
-  // Filter deals based on the selected community
-  if (selectedSort === 'vinted_d') 
-  {
-    sortedDeals = allDeals.result.filter(deal => deal.community === 'vinted');
-  } 
-  else if (selectedSort === 'dealabs_d') 
-  {
-    sortedDeals = allDeals.result.filter(deal => deal.community === 'dealabs');
-  } 
-
-  // Check if any deals were found
-  if (sortedDeals.length > 0) {
-    // Update the current deals state and render them
-    setCurrentDeals({ result: sortedDeals, meta: allDeals.meta });
-    render(sortedDeals, allDeals.meta);  // Call the render function to display the filtered deals
-  } else {
-    console.log("No deals found for the selected filter.");
+  } catch (error) {
+    console.error('Erreur lors du chargement des données :', error);
   }
 });
-// Function to filter deals based on the selected type
-const filterDeals = (filterType) => 
-{
-  // Example of how the filtering can be handled (you can adjust based on your needs)
-  console.log(`Filtering by: ${filterType}`);
-  
-  // You can modify this part to fetch deals based on the filter type or apply a filter to your current deals
-  // For instance, you can add a query parameter or adjust the deal data structure to reflect the filter
+
+//1) Mise en place slider de prix maximum :
+
+// Initialisation des valeurs des prix min et max
+const priceMaxInput = document.querySelector('#price-max-input');
+const priceMaxSlider = document.querySelector('#price-max-slider');
+
+// Valeur par défaut pour le prix
+const defaultPrice = 100; // Valeur initiale de 100€
+
+priceMaxInput.value = defaultPrice;
+priceMaxSlider.value = defaultPrice;
+
+// Écouteur d'événements pour l'input de type number
+priceMaxInput.addEventListener('input', () => {
+  priceMaxSlider.value = priceMaxInput.value; // Synchroniser la valeur du slider avec l'input number
+  const maxPrice = parseFloat(priceMaxInput.value);
+  const sortType = document.querySelector('#sort-select').value;
+  filterAndSortDeals(maxPrice, sortType); // Appliquer le filtre et le tri
+});
+
+// Écouteur d'événements pour le slider
+priceMaxSlider.addEventListener('input', () => {
+  priceMaxInput.value = priceMaxSlider.value; // Synchroniser la valeur de l'input number avec le slider
+  const maxPrice = parseFloat(priceMaxSlider.value);
+  const sortType = document.querySelector('#sort-select').value;
+  filterAndSortDeals(maxPrice, sortType); // Appliquer le filtre et le tri
+});
+
+
+// Filtrer les items en fonction du prix maximum
+
+/**
+ * Filtrer les deals et sales par prix maximum
+ * @param {Number} maxPrice - prix maximum à filtrer
+ */
+const filterAndRenderDeals = (maxPrice = parseFloat(priceMaxInput.value)) => {
+  // Filtrer les items en fonction du prix
+  const filteredItems = currentDeals.filter(item => {
+    return item.price <= maxPrice;
+  });
+
+  // Rendre les items filtrés
+  renderDealsAndSales(filteredItems);
 };
+
+// 2) Sort By price and date (expensive, cheap, recent, old)
+
+/**
+ * Fonction pour trier les deals en fonction du prix et de la date
+ * @param {Array} items - Liste des items à trier
+ * @param {string} sortType - Le type de tri ('price-asc', 'price-desc', 'date-asc', 'date-desc')
+ * @return {Array} - Liste triée des items
+ */
+// Sélectionner le menu déroulant du tri
+const sortSelect = document.querySelector('#sort-select');
+
+// Fonction pour trier les éléments selon la sélection
+const sortDeals = (items, sortType) => {
+  switch (sortType) {
+    case 'price-asc':
+      return items.sort((a, b) => a.price - b.price); // Tri par prix croissant
+    case 'price-desc':
+      return items.sort((a, b) => b.price - a.price); // Tri par prix décroissant
+    case 'date-asc':
+      return items.sort((a, b) => new Date(b.published) - new Date(a.published)); // Tri par date croissante
+    case 'date-desc':
+      return items.sort((a, b) => new Date(a.published) - new Date(b.published)); // Tri par date décroissante
+    case 'vinted_d':
+      return items.filter(item => item.source === 'vinted'); // Filtrer les deals Vinted
+    case 'dealabs_d':
+      return items.filter(item => item.source === 'dealabs'); // Filtrer les deals Dealabs
+    default:
+      return items;
+  }
+};
+
+
+// Fonction pour trier et filtrer les éléments en fonction de la sélection de l'utilisateur
+const filterAndSortDeals = (maxPrice, sortType) => {
+  // Filtrer les items en fonction du prix maximum
+  const filteredItems = currentDeals.filter(item => item.price <= maxPrice);
+
+  // Appliquer le tri en fonction du type sélectionné
+  const sortedItems = sortDeals(filteredItems, sortType);
+
+  // Rendre les items triés et filtrés
+  renderDealsAndSales(sortedItems);
+};
+
+// Ajout d'un écouteur d'événements pour le tri
+sortSelect.addEventListener('change', () => {
+  const maxPrice = parseFloat(priceMaxInput.value); // On récupère le prix maximum
+  const sortType = sortSelect.value; // On récupère le type de tri sélectionné
+  filterAndSortDeals(maxPrice, sortType); // Applique à la fois le filtre et le tri
+});
+
+// 3) Sort only deals or sales (dealabs, vinted)
+
 
 
 //FEATURE 8: filter by Id of the LEGO
@@ -476,126 +399,6 @@ function updateAverageLifetime(lifetimeValue)
 
 
 
-//FEATURE: Display the vinted sales for a specified id
-
-// Function to fetch sales from Vinted API
-const fetchVintedSales = async (id) => {
-  try {
-    const response = await fetch(`https://lego-api-blue.vercel.app/sales?id=${id}`);
-    const body = await response.json();
-
-    if (body.success !== true) {
-      console.error(body);
-      return [];
-    }
-
-    return body.data.result || [];
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-};
-
-// Modify the event listener to handle fetching and displaying data from both APIs
-
-legoSetSelect.addEventListener('change', async (event) => {
-  const selectedId = event.target.value.toString(); // Convertir en chaîne
-
-  if (!selectedId) {
-    return;
-  }
-
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value, 10));
-  const vintedSales = await fetchVintedSales(selectedId);
-
-  // Filtrer les deals avec l'ID en tant que chaîne
-  const sortedDeals = allDeals.result.filter(deal => deal.id === selectedId);
-
-  if (sortedDeals.length > 0 || vintedSales.length > 0) {
-    const deal = sortedDeals[0]; // Un seul deal attendu pour un ID unique
-    const lifetimeValue = calculateLifetimeValue(deal); // Calculer le Lifetime Value
-    updateAverageLifetime(lifetimeValue); // Mettre à jour l'affichage
-
-    // Render deals and Vinted sales
-    renderDealsAndSales(sortedDeals, vintedSales);
-  } else {
-    document.getElementById('deals').innerHTML = `<p>No deals found for ID: ${selectedId}</p>`;
-  }
-});
-
-// Function to render deals and Vinted sales
-const renderDealsAndSales = (deals, sales) => {
-  const fragment = document.createDocumentFragment();
-  const div = document.createElement('div');
-
-  const dealsTemplate = deals
-    .map((deal) => {
-      const datePublished = new Date(deal.published * 1000).toLocaleDateString();
-      const discountPercentage = deal.discount;
-      const price = deal.price;
-      const retailPrice = deal.retail;
-      const photo = deal.photo;
-      const commentsCount = deal.comments;
-      const temperature = deal.temperature;
-      const title = deal.title;
-      const dealLink = deal.link;
-
-      
-      return `
-      <div class="deal-card" id="deal-${deal.uuid}">
-        <div class="deal-header">
-          <img src="${photo}" alt="${title}" class="deal-photo">
-          <h3>${title}</h3>
-          <span class="deal-date">Published: ${datePublished}</span>
-        </div>
-        <div class="deal-body">
-          <p><strong>Price:</strong> €${price} <span class="original-price">€${retailPrice}</span></p>
-          <p><strong>Discount:</strong> ${discountPercentage}%</p>
-          <p><strong>Temperature:</strong> ${temperature}°C</p>
-          <p><strong>Comments:</strong> ${commentsCount}</p>
-        </div>
-        <div class="deal-footer">
-          <a href="${dealLink}" target="_blank" class="see-deal-button">See the deal</a>
-        </div>
-      </div>
-      `;
-    })
-    .join('');
-
-
-    const salesTemplate = sales
-    .map((sale) => {
-      const datePublished = new Date(sale.published).toLocaleDateString();
-      const price = sale.price;
-      const title = sale.title;
-      const saleLink = sale.link;
-
-      // Utiliser la photo du deal correspondant
-      const logoVinted = 'https://play-lh.googleusercontent.com/Hs8pq7sF8ihEfencKzLZZh7w6A4jDF5CsALfnccHffE3P6rccKXULHXsdi6QrwuayDI';
-
-      return `
-      <div class="sale-card" id="sale-${sale.uuid}">
-        <div class="sale-header">
-          <img src="${logoVinted}" class="sale-photo">
-        </div>
-        <div class="sale-body">
-          <h3>${title}</h3>
-          <p><strong>Price:</strong> €${price}</p>
-        </div>
-        <div class="sale-footer">
-          <span class="sale-date">Published: ${datePublished}</span>
-          <a href="${saleLink}" target="_blank" class="see-sale-button">See the sale</a>
-        </div>
-      </div>
-      `;
-    })
-    .join('');
-
-  div.innerHTML = `<h2>Deals</h2>${dealsTemplate}<h2>Vinted Sales</h2>${salesTemplate}`;
-  fragment.appendChild(div);
-  sectionDeals.innerHTML = '';
-  sectionDeals.appendChild(fragment);
-};
 
 /* FEATURE: showcasing the number of sales vinted for a specific id 
 

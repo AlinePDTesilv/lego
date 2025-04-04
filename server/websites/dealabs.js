@@ -30,6 +30,8 @@ const parse = data => {
 
       const discount = parseInt((retail-price) /retail*100);
 
+      const photo = thread.mainImage || null;
+
       const temperature = +thread.temperature;
       const comments = +thread.commentCount;
       const published = thread.publishedAt;
@@ -39,7 +41,7 @@ const parse = data => {
       // Extraire les informations pertinentes
       const id = data2.id;
 
-      return { link, title, retail, price, discount, temperature, comments, published, id};
+      return { link, title, retail, price, photo, discount, temperature, comments, published, id};
 
     })
     .get();
