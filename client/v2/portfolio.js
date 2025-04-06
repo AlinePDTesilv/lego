@@ -82,6 +82,13 @@ const fetchVintedSales = async () => {
   }
 };
 
+
+// Fonction de tri des ventes par legoId
+const filterSalesByLegoId = (sales, legoId) => {
+  // Filtrer les ventes qui contiennent un legoId correspondant
+  return sales.filter(item => item.legoId && item.legoId.toString() === legoId);
+};
+
 // Render deals and sales
 const renderDealabsDeals = (items) => {
   const fragment = document.createDocumentFragment();
@@ -186,11 +193,62 @@ const renderVintedDeals = (items) => {
     })
     .join('');
 
-  div.innerHTML = template;
-  fragment.appendChild(div);
-  sectionDeals.innerHTML = '<h2>Deals and Sales - Vinted</h2>';
-  sectionDeals.appendChild(fragment);
+    div.innerHTML = template;
+    fragment.appendChild(div);
+  
+    // Mise à jour des ventes affichées
+    sectionDeals.innerHTML = '<h2>Deals and Sales - Vinted</h2>';
+    sectionDeals.appendChild(fragment);
+  
+    // Calculer les indicateurs après avoir filtré les deals
+    const indicators = calculatePriceIndicators(items); // Calcul des indicateurs pour les ventes filtrées
+    updatePriceIndicators(indicators); // Mise à jour des indicateurs
+  
+    // Calculer la moyenne du lifetime pour les deals affichés
+    const averageLifetime = calculateAverageLifetime(items); // Calcul de la moyenne pour le lifetime des ventes
+    updateAverageLifetime(averageLifetime); // Mise à jour de l'indicateur de lifetime
 };
+
+
+// Fonction de recherche
+const handleSearch = async () => {
+  const legoId = document.getElementById('lego-set-search').value; // Récupérer l'ID LEGO de la barre de recherche
+
+  // Si l'input est vide, ne rien faire
+  if (!legoId) {
+    return;
+  }
+
+  // Récupérer les ventes
+  const sales = await fetchVintedSales();
+
+  // Filtrer les ventes par legoId
+  const filteredSales = filterSalesByLegoId(sales, legoId);
+
+  // Si aucune vente n'est trouvée pour cet ID LEGO, arrêter l'exécution
+  if (filteredSales.length === 0) {
+    sectionDeals.innerHTML = '<h2>Aucune vente trouvée pour cet ID LEGO.</h2>';
+    return;
+  }
+
+  // Récupérer les ventes abordables parmi celles filtrées
+  const affordableSales = getTopAffordableVintedSalesByPercentile(filteredSales, 10, 5); // Filtrage par percentile (par exemple, 10% les moins chers, seuil minimum 5€)
+
+  // Afficher ces ventes abordables
+  renderVintedDeals(affordableSales); // Cette fonction prend les ventes filtrées et les affiche
+};
+
+
+// Ajouter un événement sur le bouton de recherche
+const searchButton = document.getElementById('search-btn'); // Sélectionner le bouton de recherche
+searchButton.addEventListener('click', handleSearch); // Ajouter un événement sur le clic du bouton de recherche
+
+// Ajouter un événement sur l'input pour détecter les changements
+const searchInput = document.getElementById('lego-set-search'); // Sélectionner le champ de saisie
+searchInput.addEventListener('input', handleSearch); // Déclencher la recherche en temps réel (si souhaité)
+
+
+
 
 // Modify renderDealsAndSales to choose the appropriate rendering function
 const renderDealsAndSales = (items) => {
@@ -201,12 +259,47 @@ const renderDealsAndSales = (items) => {
   if (dealabsItems.length > 0) renderDealabsDeals(dealabsItems);
 };
 
+// Get top 3 best sales per id
+
+const getTopAffordableVintedSalesByPercentile = (sales, percentile = 10, minPriceThreshold = 5) => {
+  // Trier les ventes par prix (prix croissant)
+  const sortedSales = [...sales].sort((a, b) => a.price - b.price);
+
+  // Calcul du prix à partir du percentile inférieur
+  const index = Math.floor((percentile / 100) * sortedSales.length);
+  const percentilePrice = sortedSales[index].price;
+
+  // Filtrer les ventes dont le prix est inférieur au prix du percentile et au seuil minimum
+  const affordableSales = sortedSales.filter(item => item.price <= percentilePrice && item.price >= minPriceThreshold);
+
+  // Exclure les ventes avec des prix trop bas (sous le seuil minimum)
+  // Si nécessaire, on peut aussi exclure un seul item très bas (par exemple, le moins cher de tous).
+  if (affordableSales.length > 3) {
+    affordableSales.splice(affordableSales.length - 1, 1); // On s'assure de garder uniquement les meilleures dans la gamme
+  }
+
+  // Retourner les 3 ventes les plus intéressantes parmi celles filtrées
+  return affordableSales.slice(0, 3);
+};
+
+const renderAffordableVintedSales = async () => {
+  // Récupérer toutes les ventes
+  const allSales = await fetchVintedSales();
+
+  // Filtrer les ventes selon le percentile (par exemple, percentile = 10 pour les 10% les moins chers)
+  const affordableSales = getTopAffordableVintedSalesByPercentile(allSales, 10, 5); // Le seuil minimum de prix est ici 5€
+
+  // Afficher ces ventes
+  renderVintedDeals(affordableSales); // Cette fonction prend les ventes filtrées et les affiche
+};
+
+
 // Get top 5 deals
 const getTopDealabsDeals = async (maxPrice) => {
   const data = await fetchDeals(1, maxPrice);
 
   const twoMonthsAgo = new Date();
-  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 1);
 
   const filteredDeals = data.result
     .filter(d => d.source === 'dealabs' || !d.source)
@@ -523,9 +616,7 @@ function updateAverageLifetime(averageLifetime) {
   document.getElementById('lifetime_val').textContent = `${averageLifetime} days`;
 }
 
+//OBJECTIF: display 5 best sales per id
 
 
-
-
-//OBJECTIF: Trouver les 5 meilleurs deals Dealabs
 

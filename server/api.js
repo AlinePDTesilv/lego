@@ -119,22 +119,26 @@ app.get('/sales', async (req, res) => {
 
 // GET /sales/:legoId - Récupérer une vente par legoId
 app.get('/sales/:legoId', async (req, res) => {
+  console.log("🔍 Endpoint /sales/:legoId appelé");
   try {
     const database = await connectToDatabase();
     const { legoId } = req.params;
 
-    // Vérifie si legoId est une chaîne de caractères valide
-    if (!legoId || typeof legoId !== 'string' || legoId.trim() === '') {
+    console.log("legoId reçu :", legoId); // Log pour vérifier la valeur de legoId
+
+    // Vérifie si legoId est valide
+    if (!legoId || legoId.trim() === '') {
+      console.error("legoId invalide :", legoId);
       return res.status(400).json({ error: 'legoId invalide' });
     }
 
-    // Récupère toutes les ventes et filtre celles qui ont un legoId
-    const sales = await database.collection('sales').find({ legoId: { $exists: true } }).toArray();
-    
-    // Cherche la vente correspondante
-    const sale = sales.find(s => s.legoId === legoId);
+    // Recherche de la vente directement dans MongoDB
+    const sale = await database.collection('sales').findOne({ legoId });
+    console.log("Requête MongoDB :", { legoId }); // Log pour vérifier la requête
+    console.log("Résultat de la recherche :", sale); // Log pour vérifier le résultat
 
     if (!sale) {
+      console.warn("Aucune vente trouvée pour legoId :", legoId);
       return res.status(404).json({ error: 'Vente non trouvée' });
     }
 
