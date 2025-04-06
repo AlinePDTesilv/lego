@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>🧱 Lego | Predictability of a lego set deal</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -11,22 +11,18 @@
     <div class="container">
       <!-- Sidebar Gauche -->
       <div class="sidebar">
-        <!-- Section Filter -->
         <section>
           <h2>Filter</h2>
-          <div>
-            <div class="filter-title">
-              <span>Prix maximum :</span>
-              <input type="number" id="price-max-input" min="10" max="500" step="10" value="100" class="price-input"> €
-            </div>
-            <input type="range" id="price-max-slider" min="10" max="500" step="10" value="100">
+          <div class="filter-title">
+            <span>Prix maximum :</span>
+            <input type="number" id="price-max-input" min="10" max="500" step="10" value="100" class="price-input" /> €
           </div>
+          <input type="range" id="price-max-slider" min="10" max="500" step="10" value="100" />
         </section>
 
-        <!-- Section Sort -->
         <section>
           <h2>Sort</h2>
-          <label for="sort-select"> </label>
+          <label for="sort-select"></label>
           <select name="sort" id="sort-select">
             <option value="default">Default</option>
             <option value="price-asc">By Price (Cheaper)</option>
@@ -38,63 +34,49 @@
           </select>
         </section>
 
-        <!-- Section Indicators -->
         <section class="indicators">
           <h2>Indicators</h2>
-          <div>
-            <span>Number of deals:</span>
-            <span id="nbDeals">10</span>
-          </div>
-          <div>
-            <span>Number of sales:</span>
-            <span id="nbSales">0</span>
-          </div>
-          <div>
-            <span>p5 sales price value:</span>
-            <span id="nb_p5">0</span>
-          </div>
-          <div>
-            <span>p25 sales price value:</span>
-            <span id="nb_p25">0</span>
-          </div>
-          <div>
-            <span>p50 sales price value:</span>
-            <span id="nb_p50">0</span>
-          </div>
-          <div>
-            <span>Lifetime value:</span>
-            <span id="lifetime_val">0</span>
-          </div>
+          <div><span>Number of deals:</span><span id="nbDeals">10</span></div>
+          <div><span>Number of sales:</span><span id="nbSales">0</span></div>
+          <div><span>p5 sales price value:</span><span id="nb_p5">0</span></div>
+          <div><span>p25 sales price value:</span><span id="nb_p25">0</span></div>
+          <div><span>p50 sales price value:</span><span id="nb_p50">0</span></div>
+          <div><span>Lifetime value:</span><span id="lifetime_val">0</span></div>
         </section>
       </div>
 
-      <!-- Colonne Droite (Deals) -->
+      <!-- Colonne Droite -->
       <div class="deals-container">
         <h2>Lego Sets</h2>
         <div>
-          <label>Lego Set ID:</label>
+          <label for="lego-set-id-select">Lego Set ID:</label>
           <select id="lego-set-id-select"></select>
         </div>
 
         <!-- Deals List -->
         <section id="deals">
-          <div class="deal-card">
-            <!-- Colonne gauche (Image) -->
-            <div class="deal-photo-container">
-              <img src="PHOTO_URL" alt="Deal Image" class="deal-photo">
+          <div class="deal-card dealabs-card">
+            <!-- Titre -->
+            <div class="deal-title-bar">
+              <h3 class="deal-title">Un titre</h3>
             </div>
-            <!-- Colonne droite (Infos) -->
-            <div class="deal-content">
-              <h3 class="deal-title">DEAL_TITLE</h3>
-              <div class="deal-info">
-                <span><strong>Price:</strong> DEAL_PRICE</span>
-                <span><strong>Discount:</strong> DISCOUNT%</span>
-                <span><strong>Temperature:</strong> TEMPERATURE</span>
-                <span><strong>Comments:</strong> NUMBER_OF_COMMENTS</span>
+            <div class="deal-main-content">
+              <div class="deal-left">
+                <img class="brand-logo" src="logo.png" />
+                <p class="deal-date">Aujourd'hui</p>
               </div>
-              <div class="deal-footer">
-                <span class="deal-date">Published: PUBLICATION_DATE</span>
-                <a href="DEAL_LINK" class="see-deal-button" target="_blank">See the deal</a>
+              <div class="deal-center">
+                <div class="deal-price-info">
+                  <span class="price">19,99€</span>
+                  <span class="retail-price">29,99€</span>
+                </div>
+                <div class="deal-extra-info">
+                  <span>Expire bientôt</span>
+                  <span>12 commentaires</span>
+                </div>
+              </div>
+              <div class="deal-right">
+                <a href="#" class="see-deal-button">Voir le deal</a>
               </div>
             </div>
           </div>
@@ -102,8 +84,7 @@
       </div>
     </div>
 
-    <script type="text/javascript" charset="UTF-8" src="utils.js"></script>
-    <script type="text/javascript" charset="UTF-8" src="portfolio.js"></script>
+    <script src="utils.js" charset="UTF-8"></script>
+    <script src="portfolio.js" charset="UTF-8"></script>
   </body>
 </html>
-

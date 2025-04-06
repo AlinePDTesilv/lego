@@ -8,14 +8,17 @@ const legoIDs = ['42182', '60363', '43231', '75403', '75404', '21034', '42635', 
   '77051', '71387', '76303', '21333', '43224', '10363', '60373', '72032', '42635', '75405', 
   '76266', '42176', '42635', '71460'];
 
-async function fetchAndStoreDealabs(db) {
+  async function fetchAndStoreDealabs(db) {
     console.log("🕵️‍♀️ Scraping Dealabs...");
-    const deals = await dealabs.scrape('https://www.dealabs.com/groupe/lego');
-    
+    const deals = await dealabs.scrape('https://www.dealabs.com/groupe/lego'); // Exemple d'URL
+
     if (!deals || deals.length === 0) {
         console.log("❌ Aucun deal trouvé sur Dealabs.");
         return;
     }
+
+    // Log des deals récupérés
+    console.log("📋 Deals récupérés depuis Dealabs :", deals);
 
     const dealsCollection = db.collection('deals');
     const result = await dealsCollection.insertMany(deals);

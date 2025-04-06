@@ -48,12 +48,31 @@ app.get('/', (req, res) => {
   res.send({ ack: true });
 });
 
+// Fonction pour supprimer les doublons basés sur 'title' et 'price'
+function removeDuplicates(items) {
+  const uniqueItems = [];
+  const seen = new Set();
+
+  for (const item of items) {
+    const identifier = `${item.title}-${item.price}`; // Combinaison unique de 'title' et 'price'
+    if (!seen.has(identifier)) {
+      seen.add(identifier);
+      uniqueItems.push(item);
+    }
+  }
+
+  return uniqueItems;
+}
+
+
 // GET /deals - Récupérer tous les deals
 app.get('/deals', async (req, res) => {
   try {
     const database = await connectToDatabase();
     const deals = await database.collection('deals').find().toArray();
-    res.json(deals);
+    const uniqueDeals = removeDuplicates(deals);
+    
+    res.json(uniqueDeals);
   } catch (error) {
     console.error('Erreur lors de la récupération des deals:', error);
     res.status(500).json({ error: "Erreur interne du serveur" });
@@ -89,7 +108,9 @@ app.get('/sales', async (req, res) => {
   try {
     const database = await connectToDatabase();
     const sales = await database.collection('sales').find({}).toArray();
-    res.json(sales);
+    const uniqueSales = removeDuplicates(sales);
+    
+    res.json(uniqueSales);
   } catch (error) {
     console.error('Erreur lors de la récupération des ventes:', error);
     res.status(500).json({ error: 'Erreur interne du serveur' });
@@ -112,7 +133,7 @@ app.get('/sales/:id', async (req, res) => {
     if (!sale) {
       return res.status(404).json({ error: 'Vente non trouvée' });
     }
-
+    
     res.json(sale);
   } catch (error) {
     console.error('Erreur lors de la récupération de la vente:', error);

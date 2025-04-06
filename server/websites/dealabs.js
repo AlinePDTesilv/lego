@@ -30,7 +30,10 @@ const parse = data => {
 
       const discount = parseInt((retail-price) /retail*100);
 
-      const photo = thread.mainImage || null;
+      // Récupérer l'image directement depuis l'attribut `src` de l'élément <img>
+      const photo = $(element)
+      .find('div.threadListCard-image img')
+      .attr('srcset') || null;
 
       const temperature = +thread.temperature;
       const comments = +thread.commentCount;
