@@ -6,7 +6,7 @@ body {
   font-family: 'Arial', sans-serif;  /* Police moderne et lisible */
   background-color: #f4f4f4;
   margin: 0;
-  padding: 0;
+  padding-right: 25px;
 }
 
 h1 {
@@ -20,6 +20,7 @@ h1 {
 .container {
   display: flex;
   margin: 20px;
+  gap: 50px; /* <- Ajoute un espace entre les deux colonnes */
 }
 
 /* Section de la barre latérale gauche */
@@ -166,11 +167,6 @@ h1 {
   margin-bottom: 8px;
 }
 
-/* Conteneur des offres à droite */
-.deals-container {
-  width: 70%;
-  margin-left: 70px;
-}
 
 /* Cartes Vinted */
 .vinted-card {
@@ -335,5 +331,45 @@ h1 {
   background-color: #285956;
 }
 
+/*design barre de recherche */
 
+/* Style de la barre de recherche */
+.search-container {
+  margin: 10px 0;
+  display: flex;
+  align-items: center; /* Aligne l'icône et l'input sur la même ligne */
+  justify-content: center;
+  position: relative;
+}
 
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 15px; /* Moins arrondi que précédemment */
+  outline: none;
+  transition: border-color 0.3s ease;
+  padding-right: 10px; /* Légère marge à droite pour l'icône */
+}
+
+/* Style de l'icône de recherche */
+.search-icon {
+  font-size: 20px;
+  color: #bbb5b5;
+}
+
+.search-icon-container {
+  margin-left: -50px; /* Ajuste la marge gauche pour rapprocher l'icône */
+}
+
+/* Style du focus de l'input */
+.search-input:focus {
+  border-color: #007BFF; /* Change la couleur du bord quand l'input est sélectionné */
+}
+
+/* Section Filter avec un peu de padding */
+.sidebar section {
+  padding: 15px;
+}

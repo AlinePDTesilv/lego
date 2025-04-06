@@ -30,11 +30,6 @@ const parse = data => {
 
       const discount = parseInt((retail-price) /retail*100);
 
-      // Récupérer l'image directement depuis l'attribut `src` de l'élément <img>
-      const photo = $(element)
-      .find('div.threadListCard-image img')
-      .attr('srcset') || null;
-
       const temperature = +thread.temperature;
       const comments = +thread.commentCount;
       const published = thread.publishedAt;
@@ -44,7 +39,7 @@ const parse = data => {
       // Extraire les informations pertinentes
       const id = data2.id;
 
-      return { link, title, retail, price, photo, discount, temperature, comments, published, id};
+      return { link, title, retail, price, discount, temperature, comments, published, id};
 
     })
     .get();

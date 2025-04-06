@@ -117,18 +117,19 @@ app.get('/sales', async (req, res) => {
   }
 });
 
-// GET /sales/:id - Récupérer une vente par ID
-app.get('/sales/:id', async (req, res) => {
+// GET /sales/:legoId - Récupérer une vente par legoId
+app.get('/sales/:legoId', async (req, res) => {
   try {
     const database = await connectToDatabase();
-    const { id } = req.params;
+    const { legoId } = req.params; // On récupère legoId depuis les paramètres
 
-    // Vérifie si l'ID est valide avant de l'utiliser
-    if (!ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'ID invalide' });
+    // Vérifie si legoId est valide (si c'est un string ou un format valide pour legoId)
+    if (!legoId || legoId.trim() === '') {
+      return res.status(400).json({ error: 'legoId invalide' });
     }
 
-    const sale = await database.collection('sales').findOne({ _id: new ObjectId(id) });
+    // Recherche de la vente en utilisant legoId dans la base de données
+    const sale = await database.collection('sales').findOne({ legoId });
 
     if (!sale) {
       return res.status(404).json({ error: 'Vente non trouvée' });
@@ -140,5 +141,6 @@ app.get('/sales/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 });
+
 
 module.exports = app;

@@ -382,44 +382,39 @@ sortSelect.addEventListener('change', () => {
 
 
 
+//3) Top 3 best Sales Vinted by Id
 
+const legoIDs = ['42182', '60363', '43231', '75403', '75404', '21034', '42635', '75405', 
+  '76266', '42176', '71460', '42202', '40524', '75402', '76262',
+  '77051', '71387', '76303', '21333', '43224', '10363', '60373', '72032'];
 
-//3) filter by Id of the LEGO
+// Remplir le datalist
+const datalist = document.getElementById('lego-ids');
+[...new Set(legoIDs)].forEach(id => {
+  const option = document.createElement('option');
+  option.value = id;
+  datalist.appendChild(option);
+});
 
-/* Sélectionner le menu déroulant pour le Lego Set ID
-const legoSetSelect = document.getElementById('lego-set-id-select');
+// Logique de recherche
+document.getElementById('search-btn').addEventListener('click', () => {
+  const legoId = document.getElementById('lego-set-search').value.trim();
 
-// Ajouter un événement de changement au menu déroulant
-legoSetSelect.addEventListener('change', async (event) => {
-  const selectedId = event.target.value; // Récupère l'ID sélectionné
-  
-  // Vérifie que l'ID sélectionné est valide
-  if (!selectedId) {
-    return;
-  }
+  if (!legoId) return;
 
-  // Récupérer les deals actuels (sans appliquer de tri ici)
-  const allDeals = await fetchDeals(currentPagination.currentPage, parseInt(selectShow.value));
-
-  // Filtrer les deals pour récupérer uniquement celui qui correspond à l'ID sélectionné
-  const sortedDeals = allDeals.result.filter(deal => deal.id === selectedId);
-
-  // Vérifier si on a trouvé un deal
-  if (sortedDeals.length > 0) {
-    // Mettre à jour les deals et leur pagination
-    setCurrentDeals({ result: sortedDeals, meta: allDeals.meta });
-    renderDealsAndSales(sortedDeals); // Affiche les deals filtrés
-
-    // Recalculer et mettre à jour les indicateurs
-    const indicators = calculatePriceIndicators(sortedDeals);
-    updatePriceIndicators(indicators);
-  } else {
-    const dealsContainer = document.getElementById('deals');
-    dealsContainer.innerHTML = `<p>No deals found for Lego set ID: ${selectedId}</p>`;
-    updatePriceIndicators({ p5: 0, p25: 0, p50: 0, nbDeals: 0 }); // Réinitialiser les indicateurs
-  }
-});*/
-
+  fetch(`/sales/${legoId}`)
+    .then(res => {
+      if (!res.ok) throw new Error('Vente non trouvée');
+      return res.json();
+    })
+    .then(sales => {
+      displaySales(Array.isArray(sales) ? sales : [sales]); // pour s'adapter si c'est un seul objet
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Erreur ou vente non trouvée.');
+    });
+});
 
 //4) average, p5, p25, p50
 

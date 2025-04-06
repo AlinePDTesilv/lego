@@ -1,10 +1,11 @@
-
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>🧱 Lego | Predictability of a lego set deal</title>
     <link rel="stylesheet" href="styles.css" />
+    <!-- Inclure Font Awesome pour l'icône de recherche -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   </head>
   <body>
     <h1>Lego</h1>
@@ -36,7 +37,7 @@
 
         <section class="indicators">
           <h2>Indicators</h2>
-          <div><span>Number of deals:</span><span id="nbDeals">10</span></div>
+          <div><span>Number of deals:</span><span id="nbDeals">0</span></div>
           <div><span>Number of sales:</span><span id="nbSales">0</span></div>
           <div><span>p5 sales price value:</span><span id="nb_p5">0</span></div>
           <div><span>p25 sales price value:</span><span id="nb_p25">0</span></div>
@@ -45,12 +46,17 @@
         </section>
       </div>
 
-      <!-- Colonne Droite -->
-      <div class="deals-container">
-        <h2>Lego Sets</h2>
-        <div>
-          <label for="lego-set-id-select">Lego Set ID:</label>
-          <select id="lego-set-id-select"></select>
+        <!-- Colonne Droite -->
+      <div class="main-content">
+        <div class="deals-header">
+          <h2>Top deals per Id</h2>
+          <div class="search-container">
+            <input type="text" id="lego-set-search" list="lego-ids" placeholder="Select an ID" class="search-input" />
+            <datalist id="lego-ids"></datalist>
+            <div class="search-icon-container" id="search-btn">
+              <i class="fas fa-search search-icon"></i>
+            </div>
+          </div>
         </div>
 
         <!-- Deals List -->
