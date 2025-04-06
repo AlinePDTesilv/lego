@@ -21,7 +21,6 @@ This endpoint accepts the following optional query string parameters:
 - `id` - lego set id to return
 */
 
-// Invoking strict mode
 'use strict';
 
 // Current deals and pagination
@@ -34,27 +33,16 @@ const selectPage = document.querySelector('#page-select');
 const sectionDeals = document.querySelector('#deals');
 const spanNbDeals = document.querySelector('#nbDeals');
 
-/**
- * Set global value
- * @param {Array} result - deals to display
- * @param {Object} meta - pagination meta info
- */
+// Set global value
 const setCurrentDeals = ({ result, meta }) => {
   currentDeals = result;
   currentPagination = meta;
 };
 
-/**
- * Fetch deals from Dealabs API
- * @param  {Number}  [page=1] - current page to fetch
- * @param  {Number}  [size=6] - size of the page
- * @return {Object}
- */
+// Fetch deals from Dealabs API
 const fetchDeals = async (page = 1, size = 6) => {
   try {
-    const response = await fetch(
-      `https://server-two-teal-60.vercel.app/deals?page=${page}&size=${size}`
-    );
+    const response = await fetch(`https://server-two-teal-60.vercel.app/deals?page=${page}&size=${size}`);
     const body = await response.json();
 
     if (!Array.isArray(body)) {
@@ -76,10 +64,7 @@ const fetchDeals = async (page = 1, size = 6) => {
   }
 };
 
-/**
- * Fetch sales from Vinted API
- * @return {Array}
- */
+// Fetch sales from Vinted API
 const fetchVintedSales = async () => {
   try {
     const response = await fetch(`https://server-two-teal-60.vercel.app/sales`);
@@ -97,20 +82,14 @@ const fetchVintedSales = async () => {
   }
 };
 
-/**
- * Render deals and sales in the same section
- * @param  {Array} items - combined deals and sales
- */
-
-
-// Fonction de rendu pour Dealabs
+// Render deals and sales
 const renderDealabsDeals = (items) => {
   const fragment = document.createDocumentFragment();
   const div = document.createElement('div');
 
   const template = items
     .map((item) => {
-      const datePublished = item.published ? new Date(item.published * 1000).toLocaleDateString() : 'N/A'; // Conversion du timestamp en date
+      const datePublished = item.published ? new Date(item.published * 1000).toLocaleDateString() : 'N/A';
       const price = item.price;
       const title = item.title;
       const link = item.link || '#';
@@ -118,7 +97,7 @@ const renderDealabsDeals = (items) => {
       const discount = item.discount || null;
       const temperature = item.temperature || null;
       const comments = item.comments || null;
-      const source = 'dealabs'; // C'est toujours Dealabs ici
+      const source = 'dealabs';
 
       const sourceClass = 'dealabs-card';
 
@@ -127,13 +106,10 @@ const renderDealabsDeals = (items) => {
       return `
         <div class="deal-card ${sourceClass}" id="deal-${item._id || item.uuid}">
           <div class="deal-main-content">
-            <!-- Colonne gauche -->
             <div class="deal-left">
               <img src="${logoURL}" alt="${source} Logo" class="brand-logo" />
               <span class="deal-date">Published: ${datePublished}</span>
             </div>
-          
-            <!-- Colonne centrale -->
             <div class="deal-center">
               <h3 class="deal-title">${title}</h3>
               <div class="deal-price-info">
@@ -146,8 +122,6 @@ const renderDealabsDeals = (items) => {
                 ${comments ? `<span><strong>💬 Comments:</strong> ${comments}</span>` : ''}
               </div>
             </div>
-          
-            <!-- Colonne droite -->
             <div class="deal-right">
               <a href="${link}" class="see-deal-button" target="_blank">See the deal</a>
             </div>
@@ -163,14 +137,14 @@ const renderDealabsDeals = (items) => {
   sectionDeals.appendChild(fragment);
 };
 
-// Fonction de rendu pour Vinted
+// Render Vinted sales
 const renderVintedDeals = (items) => {
   const fragment = document.createDocumentFragment();
   const div = document.createElement('div');
 
   const template = items
     .map((item) => {
-      const datePublished = item.published ? new Date(item.published).toLocaleDateString('fr-FR') : 'N/A'; // Convertir la date au format "jj/mm/aaaa"
+      const datePublished = item.published ? new Date(item.published).toLocaleDateString('fr-FR') : 'N/A';
       const price = item.price;
       const title = item.title;
       const link = item.link || '#';
@@ -178,7 +152,7 @@ const renderVintedDeals = (items) => {
       const discount = item.discount || null;
       const temperature = item.temperature || null;
       const comments = item.comments || null;
-      const source = 'vinted'; // C'est toujours Vinted ici
+      const source = 'vinted';
 
       const sourceClass = 'vinted-card';
 
@@ -187,13 +161,10 @@ const renderVintedDeals = (items) => {
       return `
         <div class="deal-card ${sourceClass}" id="deal-${item._id || item.uuid}">
           <div class="deal-main-content">
-            <!-- Colonne gauche -->
             <div class="deal-left">
               <img src="${logoURL}" alt="${source} Logo" class="brand-logo" />
               <span class="deal-date">Published: ${datePublished}</span>
             </div>
-          
-            <!-- Colonne centrale -->
             <div class="deal-center">
               <h3 class="deal-title">${title}</h3>
               <div class="deal-price-info">
@@ -206,8 +177,6 @@ const renderVintedDeals = (items) => {
                 ${comments ? `<span><strong>💬 Comments:</strong> ${comments}</span>` : ''}
               </div>
             </div>
-          
-            <!-- Colonne droite -->
             <div class="deal-right">
               <a href="${link}" class="see-deal-button" target="_blank">See the deal</a>
             </div>
@@ -223,8 +192,7 @@ const renderVintedDeals = (items) => {
   sectionDeals.appendChild(fragment);
 };
 
-
-// Modification de renderDealsAndSales pour choisir la fonction de rendu selon la source
+// Modify renderDealsAndSales to choose the appropriate rendering function
 const renderDealsAndSales = (items) => {
   const vintedItems = items.filter(item => item.source === 'vinted');
   const dealabsItems = items.filter(item => item.source === 'dealabs');
@@ -233,61 +201,129 @@ const renderDealsAndSales = (items) => {
   if (dealabsItems.length > 0) renderDealabsDeals(dealabsItems);
 };
 
+// Get top 5 deals
+const getTopDealabsDeals = async (maxPrice) => {
+  const data = await fetchDeals(1, maxPrice);
 
-/**
- * Initialize the page and fetch data from both APIs
- */
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const deals = await fetchDeals();
-    const sales = (await fetchVintedSales()).map(s => ({ ...s, source: 'vinted' }));
+  const twoMonthsAgo = new Date();
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
 
-    const allItems = [
-      ...deals.result.map(d => ({ ...d, source: 'dealabs' })),
-      ...sales
-    ];
+  const filteredDeals = data.result
+    .filter(d => d.source === 'dealabs' || !d.source)
+    .map(d => ({ ...d, source: 'dealabs' }))
+    .filter(d => {
+      const publishedDate = new Date(d.published * 1000);
+      return d.temperature > 20 && publishedDate >= twoMonthsAgo && d.price <= maxPrice;
+    });
 
-    setCurrentDeals({ result: allItems, meta: deals.meta });
-    renderDealsAndSales(allItems); // Rendu initial des deals et sales
+  // Filtrer les doublons avant le scoring
+  const uniqueDeals = [];
+  const seenTitles = new Set(); // Un Set pour garder une trace des titres déjà vus
 
-    const initialMaxPrice = 100;
-    const sortType = document.querySelector('#sort-select').value;
-
-    filterAndSortDeals(initialMaxPrice, sortType); // Appliquer le filtre et le tri initiaux
-  } catch (error) {
-    console.error('Erreur lors du chargement des données :', error);
+  for (const deal of filteredDeals) {
+    if (!seenTitles.has(deal.title)) {
+      uniqueDeals.push(deal);
+      seenTitles.add(deal.title); // Ajouter le titre au Set
+    }
   }
+
+  // Calculer les scores après avoir filtré les doublons
+  const scoredDeals = uniqueDeals.map(deal => {
+    let score = deal.temperature || 0;
+    if (deal.comments >= 5) score += 10;
+    return { ...deal, score };
+  });
+
+  const topDeals = scoredDeals
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  return topDeals;
+};
+
+// Display top deals
+const displayTopDealabsDeals = async (maxPrice) => {
+  const topDeals = await getTopDealabsDeals(maxPrice);
+
+  // Mise à jour des deals avec les doublons supprimés
+  setCurrentDeals({ result: topDeals, meta: { count: topDeals.length } });
+  renderDealabsDeals(topDeals);
+
+  // Calculer les indicateurs après avoir filtré les deals
+  const indicators = calculatePriceIndicators(topDeals);
+  updatePriceIndicators(indicators);
+
+  // Calculer la moyenne du lifetime pour les deals affichés
+  const averageLifetime = calculateAverageLifetime(topDeals);
+  updateAverageLifetime(averageLifetime);
+};
+
+// Valeur par défaut de 100€
+const defaultPrice = 100; 
+
+// Initialize page
+document.addEventListener("DOMContentLoaded", () => {
+  // Assurer que le curseur et l'input sont bien initialisés à 100€
+  priceMaxSlider.value = defaultPrice;
+  priceMaxInput.value = defaultPrice;
+
+  // Appeler la fonction pour afficher les deals
+  displayTopDealabsDeals(defaultPrice);
 });
+
 
 
 
 //1) Mise en place slider de prix maximum :
 
-// Initialisation des valeurs des prix min et max
-const priceMaxInput = document.querySelector('#price-max-input');
-const priceMaxSlider = document.querySelector('#price-max-slider');
 
 // Valeur par défaut pour le prix
-const defaultPrice = 100; // Valeur initiale de 100€
+
+const priceMaxInput = document.getElementById("price-max-input"); // Ton input pour le prix max
+const priceMaxSlider = document.getElementById("price-max-slider"); // Ton slider pour le prix max
+
 
 priceMaxInput.value = defaultPrice;
 priceMaxSlider.value = defaultPrice;
 
+// Fonction pour appliquer le tri et le filtre en fonction du prix max et du type de tri
+// Fonction pour trier et filtrer les éléments en fonction de la sélection de l'utilisateur
+const filterAndSortDeals = (maxPrice, sortType) => {
+  // Filtrer les items en fonction du prix maximum
+  const filteredItems = currentDeals.filter(item => item.price <= maxPrice);
+
+  // Appliquer le tri en fonction du type sélectionné
+  const sortedItems = sortDeals(filteredItems, sortType);
+
+  // Rendre les items triés et filtrés
+  renderDealsAndSales(sortedItems);
+
+  // Recalculer et mettre à jour les indicateurs
+  const indicators = calculatePriceIndicators(sortedItems);
+  updatePriceIndicators(indicators);
+
+  // Calculer et mettre à jour l'average lifetime
+  const averageLifetime = calculateAverageLifetime(sortedItems);
+  updateAverageLifetime(averageLifetime);
+};
+
+
+// Écouteur d'événement pour l'input number (mise à jour du prix maximum via l'input)
 priceMaxInput.addEventListener('input', () => {
-  priceMaxSlider.value = priceMaxInput.value; // Synchroniser la valeur du slider avec l'input number
+  priceMaxSlider.value = priceMaxInput.value; // Synchroniser la valeur du slider avec l'input
   const maxPrice = parseFloat(priceMaxInput.value);
-  const sortType = sortSelect.value;
-  filterAndSortDeals(maxPrice, sortType); // Appliquer le filtre et le tri
+  displayTopDealabsDeals(maxPrice); 
 });
 
+// Écouteur d'événement pour le slider (mise à jour du prix maximum via le slider)
 priceMaxSlider.addEventListener('input', () => {
   priceMaxInput.value = priceMaxSlider.value; // Synchroniser la valeur de l'input number avec le slider
   const maxPrice = parseFloat(priceMaxSlider.value);
-  const sortType = sortSelect.value;
-  filterAndSortDeals(maxPrice, sortType); // Appliquer le filtre et le tri
+  displayTopDealabsDeals(maxPrice); // Rafraîchir les meilleurs deals avec le prix sélectionné
 });
 
-
+// Appel initial avec un prix max par défaut
+getTopDealabsDeals(defaultPrice);
 // Filtrer les items en fonction du prix maximum
 
 /**
@@ -336,25 +372,6 @@ const sortDeals = (items, sortType) => {
 };
 
 
-// Fonction pour trier et filtrer les éléments en fonction de la sélection de l'utilisateur
-const filterAndSortDeals = (maxPrice, sortType) => {
-  // Filtrer les items en fonction du prix maximum
-  const filteredItems = currentDeals.filter(item => item.price <= maxPrice);
-
-  // Appliquer le tri en fonction du type sélectionné
-  const sortedItems = sortDeals(filteredItems, sortType);
-
-  // Rendre les items triés et filtrés
-  renderDealsAndSales(sortedItems);
-
-  // Recalculer et mettre à jour les indicateurs
-  const indicators = calculatePriceIndicators(sortedItems);
-  updatePriceIndicators(indicators);
-
-  // Calculer et mettre à jour l'average lifetime
-  const averageLifetime = calculateAverageLifetime(sortedItems);
-  updateAverageLifetime(averageLifetime);
-};
 
 // Ajout d'un écouteur d'événements pour le tri
 sortSelect.addEventListener('change', () => {
@@ -369,7 +386,7 @@ sortSelect.addEventListener('change', () => {
 
 //3) filter by Id of the LEGO
 
-// Sélectionner le menu déroulant pour le Lego Set ID
+/* Sélectionner le menu déroulant pour le Lego Set ID
 const legoSetSelect = document.getElementById('lego-set-id-select');
 
 // Ajouter un événement de changement au menu déroulant
@@ -401,7 +418,7 @@ legoSetSelect.addEventListener('change', async (event) => {
     dealsContainer.innerHTML = `<p>No deals found for Lego set ID: ${selectedId}</p>`;
     updatePriceIndicators({ p5: 0, p25: 0, p50: 0, nbDeals: 0 }); // Réinitialiser les indicateurs
   }
-});
+});*/
 
 
 //4) average, p5, p25, p50
@@ -461,13 +478,6 @@ async function fetchAndDisplayPriceIndicators(page = 1, size = 6) {
   }
 }
 
-// Appeler fetchAndDisplayPriceIndicators à chaque chargement ou mise à jour de page
-fetchAndDisplayPriceIndicators(currentPagination.currentPage, parseInt(selectShow.value));
-
-// Appeler fetchAndDisplayPriceIndicators à chaque chargement ou mise à jour de page
-fetchAndDisplayPriceIndicators(currentPagination.currentPage, parseInt(selectShow.value));
-
-
 
 // FEATURE 10: Update Lifetime Value for a single selected deal by ID
 
@@ -522,74 +532,5 @@ function updateAverageLifetime(averageLifetime) {
 
 
 
-/*OBJECTIF: Trouver les 5 meilleurs deals Dealabs
+//OBJECTIF: Trouver les 5 meilleurs deals Dealabs
 
-// Fonction pour calculer la notation d'un deal
-function evaluateDeal(deal) {
-  if (deal.source !== "dealabs") return 0; // Ne pas évaluer les deals qui ne viennent pas de Dealabs
-  
-  // Critères :
-  const dateFactor = getDateFactor(deal.published);  // Date de publication (plus récent = mieux)
-  const priceFactor = getPriceFactor(deal.price, deal.retailPrice);  // Remise et prix
-  const temperatureFactor = getTemperatureFactor(deal.temperature);  // Température du deal
-  
-  // On combine ces facteurs pour obtenir une note finale.
-  const finalScore = dateFactor * 0.4 + priceFactor * 0.4 + temperatureFactor * 0.2;
-
-  return finalScore;
-}
-
-// Fonction pour calculer le facteur lié à la date
-function getDateFactor(date) {
-  const now = new Date();
-  const dealDate = new Date(date);
-  const ageInDays = (now - dealDate) / (1000 * 60 * 60 * 24);  // Conversion en jours
-  
-  if (ageInDays <= 7) {
-    return 1;  // Deal récent
-  } else if (ageInDays <= 30) {
-    return 0.8;  // Deal pas trop vieux
-  } else {
-    return 0.5;  // Deal plus vieux
-  }
-}
-
-// Fonction pour calculer le facteur lié au prix et à la remise
-function getPriceFactor(price, retailPrice) {
-  const discount = ((retailPrice - price) / retailPrice) * 100;  // Remise en pourcentage
-  
-  if (discount >= 50) {
-    return 1;  // Remise importante
-  } else if (discount >= 30) {
-    return 0.8;  // Remise modérée
-  } else if (discount >= 10) {
-    return 0.5;  // Remise faible
-  } else {
-    return 0.2;  // Aucune remise ou trop faible
-  }
-}
-
-// Fonction pour calculer le facteur lié à la température du deal
-function getTemperatureFactor(temperature) {
-  if (temperature >= 200) {
-    return 1;  // Très populaire
-  } else if (temperature >= 150) {
-    return 0.8;  // Populaire
-  } else if (temperature >= 100) {
-    return 0.6;  // Moyennement populaire
-  } else if (temperature >= 50) {
-    return 0.3;  // Peu populaire
-  } else {
-    return 0.1;  // Très faible
-  }
-}
-
-// Fonction pour filtrer les deals en excluant les prix trop bas (5%) et trop élevés (5%)
-function filterDealsByPrice(deals) {
-  const prices = deals.map(deal => deal.price).sort((a, b) => a - b);
-  const lowerBound = prices[Math.floor(prices.length * 0.05)];  // 5e percentile (prix trop bas)
-  const upperBound = prices[Math.floor(prices.length * 0.95)];  // 95e percentile (prix trop élevé)
-  
-  return deals.filter(deal => deal.price >= lowerBound && deal.price <= upperBound);
-}
-*/
