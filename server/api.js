@@ -121,26 +121,32 @@ app.get('/sales', async (req, res) => {
 app.get('/sales/:legoId', async (req, res) => {
   try {
     const database = await connectToDatabase();
-    const { legoId } = req.params; // On récupère legoId depuis les paramètres
+    const { legoId } = req.params;
 
-    // Vérifie si legoId est valide (si c'est un string ou un format valide pour legoId)
-    if (!legoId || legoId.trim() === '') {
+    // Vérifie si legoId est une chaîne de caractères valide
+    if (!legoId || typeof legoId !== 'string' || legoId.trim() === '') {
       return res.status(400).json({ error: 'legoId invalide' });
     }
 
-    // Recherche de la vente en utilisant legoId dans la base de données
-    const sale = await database.collection('sales').findOne({ legoId });
+    // Récupère toutes les ventes et filtre celles qui ont un legoId
+    const sales = await database.collection('sales').find({ legoId: { $exists: true } }).toArray();
+    
+    // Cherche la vente correspondante
+    const sale = sales.find(s => s.legoId === legoId);
 
     if (!sale) {
       return res.status(404).json({ error: 'Vente non trouvée' });
     }
-    
+
     res.json(sale);
   } catch (error) {
     console.error('Erreur lors de la récupération de la vente:', error);
     res.status(500).json({ error: 'Erreur interne du serveur' });
   }
 });
+
+
+
 
 
 module.exports = app;
